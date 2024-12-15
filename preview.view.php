@@ -10,6 +10,7 @@ class PreviewView extends Preview
 {
 	public function init()
 	{
+		Context::setResponseMethod('RAW');
 		// 스킨 템플릿의 경로와 스킨
 		$this->setTemplatePath($this->module_path . 'skins/' . ($this->module_config->skin ?: 'default'));
 		$this->setTemplateFile('preview_card');
