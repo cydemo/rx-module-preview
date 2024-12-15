@@ -1,4 +1,6 @@
 jQuery(document).ready(function($) {
+	const functionScriptURL = new URL(window.location.href).origin
+		+ '/modules/preview/tpl/js/services/_functions.js'
 
 	const editor = $('[data-editor-primary-key-name$="_srl"]');
 	if ( editor.length < 1 ) {
@@ -170,7 +172,7 @@ jQuery(document).ready(function($) {
 			e.stop();
 		} else if ( e.name === 'input' ) {
 			(async function() {
-				const { delContentByInput } = await import('./services/_functions.js');
+				const { delContentByInput } = await import(functionScriptURL);
 				delContentByInput(e.editor, paste);
 			})();
 		} else {
@@ -219,7 +221,7 @@ jQuery(document).ready(function($) {
 					stopPaste(e, paste);
 
 					try {
-						const { handleEmbedService } = await import('./services/_functions.js');
+						const { handleEmbedService } = await import(functionScriptURL);
 						const obj = {
 							service: service,
 							e: e,
@@ -244,7 +246,7 @@ jQuery(document).ready(function($) {
 		if ( use_preview ) {
 			stopPaste(e, paste);
 			(async function() {
-				const { setPreviewCard } = await import('./services/_functions.js');
+				const { setPreviewCard } = await import(functionScriptURL);
 				const obj = {
 					e: e,
 					paste: paste
@@ -273,7 +275,9 @@ jQuery(document).ready(function($) {
 					stopPaste(e, paste);
 
 					try {
-						const { handleEmbedService } = await import('./services/_functions.js');
+						const { handleEmbedService } = await import(
+							originURL + '/modules/preview/tpl/js/services/_functions.js'
+						);
 						const obj = {
 							service: matches_with_pdf ? 'pdf' : 'ms_office',
 							e: e,
