@@ -1,0 +1,14 @@
+<!--@if($preview_info)-->
+<div class="preview_card_wrapper" contenteditable="false">
+	<a class="preview_card_link" href="{$preview_info->url}" target="_blank">
+		<!--@if($preview_info->image)-->
+		<img src="{$preview_info->image}">
+		<!--@end-->
+		<span class="preview_card_text_container">
+			<span class="preview_card_title">{$preview_info->title}</span>
+			<span class="preview_card_desc">{$preview_info->description}</span>
+			<span class="preview_card_host">{$preview_info->author?'by '.$preview_info->author.' ':''}from {strtoupper($preview_info->site_name)}</span>
+		</span>
+	</a>
+</div>
+<!--@end-->

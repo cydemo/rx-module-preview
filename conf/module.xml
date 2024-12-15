@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<module>
+	<grants>
+	</grants>
+	<actions>
+		<!-- 관리자 액션 -->
+		<action name="dispPreviewAdminConfig" type="view" menu_name="preview" admin_index="true" />
+		<action name="procPreviewAdminInsertConfig" type="controller" />
+		<!-- 일반 액션 -->
+		<action name="dispPreviewCard" type="view" index="true" />
+		<action name="dispPreviewCardByData" type="view" index="true" />
+		<action name="dispPreviewIframe" type="view" index="true" />
+		<action name="procPreviewImageFileInfo" type="controller" />
+		<action name="procPreviewImageTempFileDelete" type="controller" />
+		<action name="procPreviewFileDownload" type="controller" method="GET|POST" global-route="true">
+			<route route="files/preview_download/$file_srl/$filename" />
+		</action>
+	</actions>
+	<menus>
+		<menu name="preview" type="all">
+			<title xml:lang="ko">링크 프리뷰</title>
+		</menu>
+	</menus>
+</module>

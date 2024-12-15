@@ -1,0 +1,100 @@
+<load target="css/config.css" />
+<load target="js/config.js" />
+
+<div class="x_page-header">
+	<h1>{$lang->cmd_preview}</h1>
+</div>
+
+<ul class="x_nav x_nav-tabs" style="border-bottom: none;"></ul>
+
+<form class="x_form-horizontal" action="./" method="post" id="preview">
+	<input type="hidden" name="module" value="preview" />
+	<input type="hidden" name="act" value="procPreviewAdminInsertConfig" />
+	<input type="hidden" name="success_return_url" value="{getRequestUriByServerEnviroment()}" />
+	<input type="hidden" name="xe_validator_id" value="modules/preview/tpl/config/1" />
+	
+	<div class="message {$XE_VALIDATOR_MESSAGE_TYPE}" cond="$XE_VALIDATOR_MESSAGE && $XE_VALIDATOR_ID == 'modules/preview/tpl/config/1'">
+		<p>{$XE_VALIDATOR_MESSAGE}</p>
+	</div>
+	
+	<!--@foreach($config_keys as $config)-->
+	<section class="section">
+		<h1>{lang($config['title'])}</h1>
+		<!--@foreach($config['items'] as $key => $item)-->
+		<div class="x_control-group">
+			<div class="x_control-label">{lang($key)}</div>
+			<div class="x_controls">
+				<!--@if(in_array($key, $radios))-->
+					<!--@foreach($item as $opt)-->
+				<label class="x_inline" for="{$key}_{$opt}" style="padding: 0 0 10px">
+					<input type="radio" name="{$key}" id="{$key}_{$opt}" value="{$opt}" checked="checked"|cond="get_object_vars($preview_config)[$key] === $opt"> {lang($opt)}
+				</label>
+					<!--@endforeach-->
+					<!--@if($config['desc']['msg_' . $key])-->
+				<p class="x_help-block">{lang('msg_' . $key)}</p>
+					<!--@endif-->
+				<!--@elseif(in_array($key, $textareas))-->
+				<textarea name="{$key}" rows="5" style="width: 100%;box-sizing: border-box;">{get_object_vars($preview_config)[$key] ?? ''}</textarea>
+					<!--@if($config['desc']['msg_' . $key])-->
+				<p class="x_help-block">{lang('msg_' . $key)}</p>
+					<!--@endif-->
+				<!--@elseif($key === 'skin')-->
+				<select name="skin" id="skin" style="width:auto">
+					<option loop="$skin_list => $key, $val" value="{$key}" selected="selected"|cond="$preview_config->skin === $key || (!$preview_config->skin && $key ==='default')">{$val->title}</option>
+				</select>
+				<!--@elseif($key === 'timeout')-->
+				<ul>
+					<li><span>{lang('timeout_metatags')}</span><input type="number" name="timeout[]" value="{$preview_config->timeout[0]}" /><span>{lang('unit_sec')}</span></li>
+					<li><span>{lang('timeout_curl')}</span><input type="number" name="timeout[]" value="{$preview_config->timeout[1]}" /><span>{lang('unit_sec')}</span></li>
+				</ul>
+				<p class="x_help-block">{lang('msg_' . $key)}</p>
+				<!--@elseif($key === 'media_embed_list')-->
+					<!--@foreach($item as $k => $opt)-->
+						<!--@if(count($opt))-->
+				<div>
+					<p class="x_help-block" style="display: inline-block; margin-right: 16px;">"{lang($k)}"</p>
+							<!--@foreach($check_command as $command)-->
+					<label class="x_inline button" rel="{$k}" id="select_command_{$k}_{$command}">
+						{lang($command)}
+					</label>
+							<!--@endforeach-->
+					<div rel="{$k}">
+							<!--@foreach($opt as $o)-->
+						<label class="x_inline button" for="{$o}">
+						{@ $media_opt = get_object_vars($preview_config)[$k];}
+							<input type="checkbox" name="{$k}[]" id="{$o}" value="{$o}" checked="checked"|cond="is_array($media_opt) && in_array($o, $media_opt)"> {ucfirst(lang($o))}
+						</label>
+							<!--@endforeach-->
+					</div>
+				</div>
+						<!--@endif-->
+					<!--@endforeach-->
+				<!--@elseif($key === 'mid_list')-->
+					<!--@if($config['desc']['msg_' . $key])-->
+						<!--@foreach($check_command as $command)-->
+				<label class="x_inline button" rel="{$key}" id="select_command_{$key}_{$command}">
+					{lang($command)}
+				</label>
+						<!--@endforeach-->
+				<p class="x_help-block">{lang('msg_' . $key)}</p>
+					<!--@endif-->
+				<div rel="{$key}">
+					<!--@foreach($item as $opt)-->
+					<label for="{$opt->module_srl}" class="button">
+						<input type="checkbox" name="mid_list[]" id="{$opt->module_srl}" value="{$opt->module_srl}" checked="checked"|cond="is_array($preview_config->mid_list) && in_array($opt->module_srl, $preview_config->mid_list)" />
+						<strong>{$opt->browser_title}</strong> ({$opt->mid} / {strtoupper($opt->module)})
+					</label>
+					<!--@endforeach-->
+				</div>
+				<!--@endif-->
+			</div>
+		</div>
+		<!--@endforeach-->
+	</section>
+	<!--@endforeach-->
+	
+	<div class="btnArea x_clearfix">
+		<button type="submit" class="x_btn x_btn-primary x_pull-right">{$lang->cmd_registration}</button>
+	</div>
+	
+</form>

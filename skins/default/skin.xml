@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<skin version="0.2">
+	<title xml:lang="ko">기본 스킨</title>
+	<description xml:lang="ko">기본 스킨</description>
+	<version>0.0.1</version>
+	<date>2022-11-06</date>
+	<author email_address="cydemo@aporia.blog" link="https://dev.aporia.blog">
+		<name xml:lang="ko">윤삼</name>
+	</author>
+	<extra_vars>
+	</extra_vars>
+</skin>
