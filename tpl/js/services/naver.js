@@ -7,7 +7,7 @@ export async function setNaverHtml(obj) {
 	preview.reg_exps.naverBridgeRegExp = /^https:\/\/(?:bridge-now|link)\.naver\.com\/bridge\?(?:target_)?url=([^&]+)/;
 	preview.reg_exps.naverTVRegExp = /^https?:\/\/(?:m\.)?tv(?:cast)?\.naver\.com\/(v|l|h)\/(\d+)(?:|\/\?)/;
 	preview.reg_exps.naverVideoRegExp = /^https?:\/\/(?:m\.)?(sports(?:\.news)?|(?:n\.)?news|media|entertain|game)\.naver\.com\/((?:(?:mnews|ranking|movie|now|series|kbaseball|wbaseball|kfootball|wfootball|basketball|volleyball|golf|general|esports)\/)?\w+(?:\/issue)?)(?:\/|\.nhn\?id=)?(?:(?:ranking\/)?read\.naver.+oid=|bi\/(?:mi|pi)\/mediaView\.naver\?code=)?(?:(\w+))?(?:(?:\/|\&)(?:(?:a|m)?id=)?(\w+))?(?:.+(?:albumId|photoId)?=(\d+))?(?:.+)?$/;
-	preview.reg_exps.naverShortFormRegExp = /^https?:\/\/(?:m\.)?naver\.com(?:\/)?\/shorts\/\?mediaId=([^&]+)\&.+$/;
+	preview.reg_exps.naverShortFormRegExp = /^https?:\/\/(?:m\.)?naver\.com(?:\/)?\/shorts\/\?(?:.+)?mediaId=([^&]+)\&.+$/;
 
 	let matches = [];
 	obj.url = obj.matches[0];
@@ -53,7 +53,9 @@ export async function setNaverHtml(obj) {
 	return;
 }
 
-	function setNaverInit(obj) {
+	async function setNaverInit(obj) {
+		const { setPreviewCard } = await import('./_functions.js');
+
 		let matches = [];
 
 		// NAVER TV
@@ -80,6 +82,7 @@ export async function setNaverHtml(obj) {
 			return;
 		}
 		
+		setPreviewCard(obj);
 		return;
 	}
 
@@ -359,7 +362,7 @@ export async function setNaverHtml(obj) {
 	}
 
 	async function setNaverShortForm(obj) {
-		const { setPreviewCard } = await import('./_functions.js');
+		const { setPreviewCard, insertMediaEmbed, completeMediaEmbed } = await import('./_functions.js');
 
 		let matches = obj.matches;
 		const id = matches[1];
@@ -377,16 +380,35 @@ export async function setNaverHtml(obj) {
 				return false;
 			}
 
+			// NAVER TV
 			matches = matches[1].match(preview.reg_exps.naverTVRegExp);
+			if ( matches && $.isNumeric(matches[2]) ) {
+				obj.matches = matches;
+				setNaverTV(obj);
+				return;
+			}
+
+			matches = data.match(/endPageMobileUrl\":\"([^"]+)/);
 			if ( !matches ) {
 				setPreviewCard(obj);
 				return false;
 			}
 
-			obj.matches = matches;
-			setNaverTV(obj);
+			const iframe_src = matches[1];
 
-			return;
+			let thumb = $(data).filter('meta[property="og:image"]').attr('content').replace(/\?.+/, '') || '';
+				thumb = thumb ? '<img src="'+ thumb +'" />' : '';
+
+			obj.matches = matches;
+			obj.html =
+				'<div class="'+ preview.iframe_wrapper +'_wrapper" contenteditable="false">' +
+					'<div class="'+ preview.iframe_wrapper +' youtube-shorts">' +
+						thumb +
+						'<iframe src="'+ iframe_src +'" frameborder="no" scrolling="no" loading="lazy" allowfullscreen></iframe>' +
+					'</div>' +
+				'</div>';
+			insertMediaEmbed(obj);
+			completeMediaEmbed();
 		}).fail(function() {
 			setPreviewCard(obj);
 			return false;

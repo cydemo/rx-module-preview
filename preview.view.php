@@ -11,6 +11,7 @@ class PreviewView extends Preview
 	public function init()
 	{
 		Context::setResponseMethod('RAW');
+
 		// 스킨 템플릿의 경로와 스킨
 		$this->setTemplatePath($this->module_path . 'skins/' . ($this->module_config->skin ?: 'default'));
 		$this->setTemplateFile('preview_card');
@@ -30,7 +31,28 @@ class PreviewView extends Preview
 			return;
 		}
 
-		$preview_info = PreviewModel::getPreviewInfo($url);
+		$flag = false;
+		$links = [
+			'naver.me', 'cafe.naver.com/ca-fe/town-talks', 'ogqmarket.naver.com/creators', 'dict.naver.com', 'map.naver.com', 'game.naver.com', 'movie.naver.com', 'jr.naver.com',
+			'finance.daum.net', 'dic.daum.net', 'wordbook.daum.net', 'melon.com/artist', 'webtoon.kakao.com',
+			'namu.wiki', 'fmkorea.com', 'soccerline.kr', 'coupang.com', '.tistory.com', '.gettyimages.com', '.aliexpress.com'
+		];
+		foreach ( $links as $link )
+		{
+			if ( strpos($url, $link) !== false )
+			{
+				$flag = true;
+				break;
+			}
+		}
+		if ( $flag )
+		{
+			$preview_info = PreviewModel::getPreviewInfoByCrwaler($url);
+		}
+		else
+		{
+			$preview_info = PreviewModel::getPreviewInfo($url);
+		}
 
 		Context::set('preview_info', $preview_info);
 	}

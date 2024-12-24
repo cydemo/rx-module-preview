@@ -1,5 +1,6 @@
 jQuery(document).ready(function($) {
 
+	const functionScriptURL = request_uri + 'modules/preview/tpl/js/services/_functions.js';
 	const editor = $('[data-editor-primary-key-name$="_srl"]');
 	if ( editor.length < 1 ) {
 		return;
@@ -16,7 +17,7 @@ jQuery(document).ready(function($) {
 		cors : request_uri + 'modules/preview/libs/media_embed.cors.php?url=',
 		omit_message : '생략된 부분은 본문이 로드되면 볼 수 있습니다.',
 		wait_message : '콘텐츠를 로딩 중입니다.<br>잠시만 기다려주세요.',
-		editor_container : $('.xefu-container[data-editor-sequence=' + CKEDITOR.instances.editor1.element.$.dataset.editorSequence + ']'),
+		editor_container : $('.xefu-container[data-editor-sequence=' + editor.data('editor-sequence') + ']'),
 		embed_service_list : (embed_services ? embed_services.split(',') : null),
 		reg_exps : {
 			airbnbRegExp: /^https?:\/\/(?:www\.)?airbnb\.(?:[.a-z]+)\/rooms\/(\d+)(?:\?.+)?/,
@@ -55,11 +56,11 @@ jQuery(document).ready(function($) {
 			ktvRegExp: /^https?:\/\/(?:(?:www|m)\.)?ktv\.go\.kr\/(?:content|(?:issue|program|online)\/(?:home\/\w+|again|orgPromotion)|news\/(?:major|latest|issue|sphere\/T\d{6}))?\/(?:view(?:\/|\?(?:[^&\s]+&(?:amp;)?)?content_id=)|content\/)(\d+)/,
 			mixcloudRegExp: /^https?:\/\/(?:(?:www|m)\.)?mixcloud\.com\/(.+?)\/(.+?)(?:\/)?$/,
 			mlbRegExp: /^https:\/\/(?:www|m)\.mlb\.com\/video\/([-_a-z0-9.]+)(?:\?.+)?$/,
-			msOfficeRegExp: /<a[^"]+href="([^"]+\.(pptx?|docx?|xlsx?))"[^"]+data-file-srl="(\d+)"(?:[^>]+)?>(.+\.(?:pptx?|docx?|xlsx?))<\/a>/,
+			msOfficeRegExp: /^<a(?:[^>]+)?data-file-srl="(\d+)"(?:[^>]+)?>(.+\.(pptx?|docx?|xlsx?))<\/a>/,
 			naverRegExp: /^https?:\/\/(?:naver\.me\/[\w]{8}$|(?:(?:(?:m.)?(?:sports|game|entertain)|tv|(?:n.|sports.)?news|media|m).)naver.com\/.+$)/,
 			naverVibeRegExp: /^https?:\/\/vibe\.naver\.com\/(track|album|playlist)\/([\w]+)/,
 			niconicoRegExp: /^https?:\/\/(?:(?:www|sp|(live))\.)?nico(?:video)?\.(?:jp|ms)\/(?:(watch)\/)?(\w{2}\d+)(?:(?:\?from=|\#)([0-9:]+))?/,
-			pdfRegExp: /<a[^"]+href="([^"]+\.(pdf))"[^"]+data-file-srl="(\d+)"(?:[^>]+)?>(.+\.pdf)<\/a>/,
+			pdfRegExp: /^<a(?:[^>]+)?data-file-srl="(\d+)"(?:[^>]+)?>(.+\.(pdf))<\/a>/,
 			pinterestRegExp: /^https?:\/\/(?:(?:www\.)?pin\.it\/[\w]+$|(?:\w+\.)?pinterest\.(?:co\.?[a-z]+)\/([_a-z]+)(?:\/(?:([^/?]+))?(?:\/)?)?(?:(?:sent\/)?\?.+)?$)/,
 			preziRegExp: /^https?:\/\/prezi\.com\/(?:(v|p|m)\/)?([\w\d:_-]{12})\/([\w\d:_-]+)(?:.+)?/,
 			qqRegExp: /^https?:\/\/(?:m\.)?v\.qq\.com\/(?:x\/(?:m\/)?)?(cover|page|play)(?:.+?(?:(?:cid=)?(\w{15})))?(?:.+?(?:(?:vid=)?(\w{11})))(?:.+?(?:(?:cid=)?(\w{15})))?/,
@@ -92,7 +93,7 @@ jQuery(document).ready(function($) {
 	let paste = '';
 
 	initEditor();
-	
+
 	async function initEditor() {
 		try {
 			const ck_editor = CKEDITOR.instances.editor1;
@@ -104,7 +105,19 @@ jQuery(document).ready(function($) {
 
 			setIframeSrc(ck_editor);
 
+			ck_editor.on('paste', async function(e) {
+				paste = e.data.dataValue;
+				await setContent(e, paste);
+			});
+
 			ck_editor.editable().on('input', async function(e) {
+				const userAgent = window.navigator.userAgent;
+				const matches = userAgent.match(/iPhone OS (\d+)_/);
+				if (matches && parseInt(matches[1]) <= 10) {
+					console.warn('iOS fallback logic applied.');
+					return;
+				}
+
 				paste = e.data.$.data;
 				if ( paste === null) {
 					return;
@@ -114,45 +127,28 @@ jQuery(document).ready(function($) {
 				await setContent(e, paste);
 			});
 
-			ck_editor.on('paste', async function(e) {
-				paste = e.data.dataValue;
-				await setContent(e, paste);
-			});
-
-			// 첨부 파일 본문 삽입 html 가로채기
-			let isInsertedHtml = false;
 			let originalInsertHtml = ck_editor.insertHtml;
 			let html_inserted = '';
-			const is_translated = /<a%20href="([^"]+\.(?:pdf|pptx?|docx?|xlsx?))"%20data-file-srl="(\d+)">(.+\.(?:pdf|pptx?|docx?|xlsx?))<\/a>/;
 
-			ck_editor.insertHtml = function(html) {
-				if ( isInsertedHtml ) {
-					return;
-				}
+			ck_editor.insertHtml = async function(html) {
+				html = html.replaceAll('%20', ' ');
 
-				if ( html_inserted && html.match(is_translated) ) {
-					isInsertedHtml = true;
-					originalInsertHtml.call(this, html);
-					html_inserted = '';
-					return;
-				}
-
-				if ( html.match(preview.reg_exps.pdfRegExp) || html.match(preview.reg_exps.msOfficeRegExp) ) {
+				if (html.match(preview.reg_exps.pdfRegExp) || html.match(preview.reg_exps.msOfficeRegExp)) {
 					html_inserted = html;
 					html = '';
 				}
 
-				originalInsertHtml.call(this, html);
+				await originalInsertHtml.call(this, html);
 			};
 
 			ck_editor.on('insertHtml', async function(e) {
-				if ( isInsertedHtml ) {
-					isInsertedHtml = false;
+				if (!html_inserted) {
 					return;
 				}
 
-				await setContentByInsertHtml(e, html_inserted);
-
+				paste = html_inserted;
+				html_inserted = '';
+				await setContentByInsertHtml(e, paste);
 			});
 		} catch (error) {
 			console.error('Error during setEditor execution:', error);
@@ -160,9 +156,13 @@ jQuery(document).ready(function($) {
 	}
 
 	function setIframeSrc(editor) {
-		const old_data = editor.document.getBody().getHtml();
-		const new_data = old_data.replace(/(data-src="([^"]+)")/g, '$1 src="$2"');
-		editor.document.getBody().setHtml(new_data);
+		const iframe_elements = editor.document.find('iframe[data-src]');
+		iframe_elements.toArray().forEach((iframe) => {
+			const data_src = iframe.getAttribute('data-src');
+			if (data_src) {
+				iframe.setAttribute('src', data_src);
+			}
+		});
 	}
 
 	function stopPaste(e, paste) {
@@ -170,7 +170,7 @@ jQuery(document).ready(function($) {
 			e.stop();
 		} else if ( e.name === 'input' ) {
 			(async function() {
-				const { delContentByInput } = await import('./services/_functions.js');
+				const { delContentByInput } = await import(functionScriptURL);
 				delContentByInput(e.editor, paste);
 			})();
 		} else {
@@ -219,7 +219,7 @@ jQuery(document).ready(function($) {
 					stopPaste(e, paste);
 
 					try {
-						const { handleEmbedService } = await import('./services/_functions.js');
+						const { handleEmbedService } = await import(functionScriptURL);
 						const obj = {
 							service: service,
 							e: e,
@@ -234,7 +234,7 @@ jQuery(document).ready(function($) {
 					break;
 				}
 			})();
-			
+
 			if ( is_embedded ) {
 				return;
 			}
@@ -244,7 +244,7 @@ jQuery(document).ready(function($) {
 		if ( use_preview ) {
 			stopPaste(e, paste);
 			(async function() {
-				const { setPreviewCard } = await import('./services/_functions.js');
+				const { setPreviewCard } = await import(functionScriptURL);
 				const obj = {
 					e: e,
 					paste: paste
@@ -256,6 +256,10 @@ jQuery(document).ready(function($) {
 	}
 
 	function setContentByInsertHtml(e, paste) {
+		if ( !paste ) {
+			return;
+		}
+
 		// Media Embed
 		if ( embed_services ) {
 			const embed_service_list = embed_services ? embed_services.split(',') : null;
@@ -273,7 +277,7 @@ jQuery(document).ready(function($) {
 					stopPaste(e, paste);
 
 					try {
-						const { handleEmbedService } = await import('./services/_functions.js');
+						const { handleEmbedService } = await import(functionScriptURL);
 						const obj = {
 							service: matches_with_pdf ? 'pdf' : 'ms_office',
 							e: e,
@@ -286,7 +290,7 @@ jQuery(document).ready(function($) {
 					}
 				}
 			})();
-			
+
 			if ( is_embedded ) {
 				return;
 			}

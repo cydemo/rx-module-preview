@@ -87,7 +87,7 @@ export async function delContentByInput(editor, paste) {
 	if ( bookmark_element ) {
 		range.setStart(bookmark_element, 0);
 		range.setEnd(bookmark_element.getFirst(), 0);
-		
+
 		editor.getSelection().selectRanges([range]);
 
 		requestAnimationFrame(() => {
@@ -314,7 +314,7 @@ async function _convertTemptoObj(file_info) {
 	const data = await response.blob();
 	return new File([data], file_info.name, {type: file_info.type});
 }
-	
+
 export async function getFileObjByDataUrl(data_url) {
 	var arr = data_url.split(','),
 		mime = arr[0].match(/:(.*?);/)[1],

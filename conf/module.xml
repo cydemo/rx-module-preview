@@ -12,9 +12,7 @@
 		<action name="dispPreviewIframe" type="view" index="true" />
 		<action name="procPreviewImageFileInfo" type="controller" />
 		<action name="procPreviewImageTempFileDelete" type="controller" />
-		<action name="procPreviewFileDownload" type="controller" method="GET|POST" global-route="true">
-			<route route="files/preview_download/$file_srl/$filename" />
-		</action>
+		<action name="procPreviewFileDownload" type="controller" method="GET|POST" />
 	</actions>
 	<menus>
 		<menu name="preview" type="all">

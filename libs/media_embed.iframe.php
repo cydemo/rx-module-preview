@@ -289,16 +289,8 @@ else if ( $service === 'pdf' || $service === 'ms_office' )
 		throw new Rhymix\Framework\Exceptions\TargetNotFound('msg_file_not_found');
 	}
 
-	$file_module_config = FileModel::getFileConfig($file_obj->module_srl);
-	if ($file_module_config->download_short_url === 'Y' && config('use_rewrite'))
-	{
-		$download_url = Context::getRequestUri() . sprintf('files/preview_download/%d/%s', $file_srl, $filename);
-	}
-	else
-	{
-		$url = getNotEncodedUrl('', 'module', 'preview', 'act', 'procPreviewFileDownload', 'file_srl', $file_srl);
-		$download_url = Context::getRequestUri() . ltrim($url, '/');
-	}
+	$download_url = getFullUrl('', 'module', 'preview', 'act', 'procPreviewFileDownload', 'file_srl', $file_srl);
+	$download_url = htmlspecialchars_decode($download_url);
 
 	$_ext = explode('.', strtolower($filename));
 	$ext = $_ext[count($_ext)-1];
@@ -336,7 +328,7 @@ else if ( $service === 'pdf' || $service === 'ms_office' )
 						
 						if (pageNum === 1) {
 							const aspectRatio = viewport.height / viewport.width;
-							container.style.height = `${container.clientWidth * aspectRatio}px`;
+							container.style.height = (container.clientWidth * aspectRatio) + 'px';
 
 							try {
 								// ResizeObserver를 사용하여 요소의 크기 변경 감지
@@ -374,7 +366,7 @@ else if ( $service === 'pdf' || $service === 'ms_office' )
 			exit;
 		}
 
-		$result .= '<iframe src="https://view.officeapps.live.com/op/embed.aspx?src='. $download_url .'"></iframe>';
+		$result .= '<iframe src="//view.officeapps.live.com/op/embed.aspx?src='. rawurlencode($download_url) .'"></iframe>';
 	}
 }
 

@@ -3,23 +3,22 @@ export async function setPdfHtml(obj) {
 		return p1.toUpperCase();
 	});
 
-	if ( !obj.matches[1] || !obj.matches[2] || !$.isNumeric(obj.matches[3]) || !obj.matches[4] ) {
+	if ( !$.isNumeric(obj.matches[1]) || !obj.matches[2] || !obj.matches[3] ) {
 		console.error('Error parsing '+ title +' url');
 		return;
 	}
 
 	try {
-		const { waitMediaEmbed, setPreviewCard, insertMediaEmbed, completeMediaEmbed, getFileObjByDataUrl, procFileUpload } = await import('./_functions.js');
+		const { waitMediaEmbed, insertMediaEmbed, completeMediaEmbed, getFileObjByDataUrl, procFileUpload } = await import('./_functions.js');
 
 		waitMediaEmbed();
 
-		const url = obj.matches[1];
-		const type = obj.matches[2];
-		const id = obj.matches[3];
-		const source_filename = obj.matches[4];
+		const id = obj.matches[1];
+		const filename = obj.matches[2];
+		const type = obj.matches[3];
 
 		const target_url = '/modules/preview/libs/media_embed.iframe.php' +
-			'?service=' + obj.service + '&type=' + type + '&url=' + source_filename + '&data=' + id;
+			'?service=' + obj.service + '&type=' + type + '&url=' + filename + '&data=' + id;
 		const iframe_src = target_url;
 
 		try {
@@ -31,7 +30,6 @@ export async function setPdfHtml(obj) {
 			let data = await response.text();
 			if (!data) {
 				console.error('Error: data is empty or wrong');
-				setPreviewCard(obj);
 				return false;
 			}
 			const filepath = $(data).find('#file-container').data('filepath');
@@ -68,8 +66,8 @@ export async function setPdfHtml(obj) {
 									</div>
 								</div>
 							`;
-							
-							await procFileUpload(obj);
+
+							procFileUpload(obj);
 							obj.e.editor.showNotification(preview.omit_message, 'info', 3000);
 						});
 					});
@@ -90,7 +88,6 @@ export async function setPdfHtml(obj) {
 			});
 		} catch (error) {
 			console.error('Error fetching '+ title +' data:', error);
-			setPreviewCard(obj);
 			return false;
 		}
 	} catch (error) {

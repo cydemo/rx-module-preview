@@ -17,10 +17,12 @@ export async function setJsfiddleHtml(obj) {
 		const id = obj.matches[2];
 		const hash = obj.matches[3] ?? '';
 		const iframe_src = '//jsfiddle.net/' + name + '/' + id + '/' + hash + '/embedded/result,html,css,js/';
+		const thumb = '<img src="https://cdn4.iconfinder.com/data/icons/logos-and-brands-1/512/188_Jsfiddle_logo_logos-512.png" />';
 
 		obj.html = `
 			<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 				<div class="${preview.iframe_wrapper} jsfiddle-embed">
+					${thumb}
 					<iframe src="${iframe_src}" allowfullscreen="true" allowtransparency="true" frameborder="0" loading="lazy"></iframe>
 				</div>
 			</div>

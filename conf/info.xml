@@ -2,8 +2,8 @@
 <module version="0.2">
 	<title xml:lang="ko">링크 프리뷰</title>
 	<description xml:lang="ko">CKEditor에 링크를 &#039;붙여넣기&#039;하면 미리보기 카드 또는 임베드 코드로 &#039;바로 변환&#039;해줍니다.</description>
-	<version>0.2.0</version>
-	<date>2024-12-15</date>
+	<version>0.2.1</version>
+	<date>2024-12-25</date>
 	<category>service</category>
 	<author email_address="cydemo@aporia.blog" link="https://dev.aporia.blog">
 		<name xml:lang="ko">윤삼</name>

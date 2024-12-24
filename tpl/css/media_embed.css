@@ -67,6 +67,9 @@
 .media_embed.discord-embed {
 	display: inline-block; max-width: 360px; padding-bottom: 480px;
 }
+.media_embed.discord-embed img {
+	aspect-ratio: 3 / 4; object-fit: scale-down;
+}
 
 .media_embed.fb-post,
 .media_embed.fb-video,
@@ -176,10 +179,13 @@
 }
 
 .media_embed.jsfiddle-embed {
-	height: 480px; padding-bottom: 0;
+	padding-bottom: 75%;
+}
+.media_embed.jsfiddle-embed img {
+    aspect-ratio: 4 / 3; object-fit: scale-down;
 }
 .media_embed.jsfiddle-embed iframe {
-	position: relative; height: 480px; border: 1px solid #bbb; box-sizing: border-box;
+	border: 1px solid #bbb; box-sizing: border-box;
 }
 
 .media_embed.kakao-map-embed {

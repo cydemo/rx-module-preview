@@ -194,7 +194,7 @@ class PreviewController extends Preview
 				// 댓글 허용시에만 임베딩 활성화
 				if ( $oDocument->get('comment_status') === 'ALLOW' && $editor_config->comment_editor_skin === 'ckeditor' )
 				{
-					Context::addJsFile($module_path . 'tpl/js/_ckeditor.js');
+					Context::addJsFile($module_path . 'tpl/js/_ckeditor.js', '', '', 0, 'body');
 				}
 			}
 		}
@@ -215,7 +215,7 @@ class PreviewController extends Preview
 							Context::addCssFile($module_path . 'tpl/css/custom.css');
 						}
 					}
-					Context::addJsFile($module_path . 'tpl/js/_ckeditor.js');
+					Context::addJsFile($module_path . 'tpl/js/_ckeditor.js', '', '', 0, 'body');
 				}
 			}
 			// 댓글 삭제 모드
@@ -263,7 +263,7 @@ class PreviewController extends Preview
 							}
 						}
 					}
-					Context::addJsFile($module_path . 'tpl/js/_ckeditor.js');
+					Context::addJsFile($module_path . 'tpl/js/_ckeditor.js', '', '', 0, 'body');
 				}
 			}
 		}

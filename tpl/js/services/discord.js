@@ -15,6 +15,7 @@ export async function setDiscordHtml(obj) {
 
 		const type = obj.matches[2];
 		const id = obj.matches[3];
+		const thumb = '<img src="https://cdn.prod.website-files.com/6257adef93867e50d84d30e2/636e0a6a49cf127bf92de1e2_icon_clyde_blurple_RGB.png" />';
 		let iframe_src = 'https://discordapp.com/widget?id=';
 
 		if ( type === 'channels' && $.isNumeric(id) ) {
@@ -22,6 +23,7 @@ export async function setDiscordHtml(obj) {
 			obj.html = `
 					<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 						<div class="${preview.iframe_wrapper} discord-embed">
+							${thumb}
 							<iframe src="${iframe_src}"></iframe>
 						</div>
 					</div>
@@ -46,6 +48,7 @@ export async function setDiscordHtml(obj) {
 				obj.html = `
 					<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 						<div class="${preview.iframe_wrapper} discord-embed">
+							${thumb}
 							<iframe src="${iframe_src}"></iframe>
 						</div>
 					</div>
