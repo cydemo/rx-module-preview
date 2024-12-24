@@ -31,28 +31,7 @@ class PreviewView extends Preview
 			return;
 		}
 
-		$flag = false;
-		$links = [
-			'naver.me', 'cafe.naver.com/ca-fe/town-talks', 'ogqmarket.naver.com/creators', 'dict.naver.com', 'map.naver.com', 'game.naver.com', 'movie.naver.com', 'jr.naver.com',
-			'finance.daum.net', 'dic.daum.net', 'wordbook.daum.net', 'melon.com/artist', 'webtoon.kakao.com',
-			'namu.wiki', 'fmkorea.com', 'soccerline.kr', 'coupang.com', '.tistory.com', '.gettyimages.com', '.aliexpress.com'
-		];
-		foreach ( $links as $link )
-		{
-			if ( strpos($url, $link) !== false )
-			{
-				$flag = true;
-				break;
-			}
-		}
-		if ( $flag )
-		{
-			$preview_info = PreviewModel::getPreviewInfoByCrwaler($url);
-		}
-		else
-		{
-			$preview_info = PreviewModel::getPreviewInfo($url);
-		}
+		$preview_info = PreviewModel::getPreviewInfo($url);
 
 		Context::set('preview_info', $preview_info);
 	}
