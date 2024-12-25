@@ -185,14 +185,15 @@ function arrangePreviewResult(obj, result) {
 		return false;
 	}
 
-	const selector = $(result).filter('.preview_card_wrapper');
-	if ( !selector.length ) {
+	try {
+		$(result)
+	} catch (error) {
 		e.editor.insertHtml(paste);
 		completeMediaEmbed();
 		return false;
 	}
 
-	obj.html = selector[0].outerHTML;
+	obj.html = result;
 
 	if ( !image_file_upload ) {
 		insertPreviewCard(obj);
