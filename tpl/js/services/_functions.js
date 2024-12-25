@@ -112,7 +112,7 @@ export async function setPreviewCard(obj) {
 		layout: 'none'
 	};
 
-	$.get(current_url, params, function(result) {
+	$.get(current_url.setQuery('act', null), params, function(result) {
 		arrangePreviewResult(obj, result);
 	});
 }
@@ -132,7 +132,7 @@ export async function setPreviewCardByData(obj) {
 		layout: 'none'
 	};
 
-	$.get(current_url, params, function(result) {
+	$.get(current_url.setQuery('act', null), params, function(result) {
 		arrangePreviewResult(obj, result);
 	});
 }
