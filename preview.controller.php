@@ -161,7 +161,7 @@ class PreviewController extends Preview
 			$script .= 'var no_attach_domains = \'' . $no_attach_domains . '\';';
 
 			// 프리뷰 카드 스킨의 css 파일을 추가
-			Context::addCssFile($module_path . 'skins/' . (isset($this->module_config->skin) ? $this->module_config->skin: 'default') . '/preview_card_style.css');
+			Context::addCssFile($module_path . 'skins/' . (isset($config->skin) ? $config->skin : 'default') . '/preview_card_style.css');
 		}
 
 		// 본문 view 또는 print 모드
