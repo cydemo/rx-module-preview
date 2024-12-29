@@ -51,7 +51,7 @@ export async function setBilibiliHtml(obj) {
 						}
 					});
 				}
-				
+
 				await setBilibili(obj, id);
 			} catch (error) {
 				console.error('Error fetching '+ title +' data:', error);
@@ -79,13 +79,13 @@ export async function setBilibiliHtml(obj) {
 					editor_sequence: preview.editor_container.data().editorSequence,
 					allow_chunks: 'Y'
 				};
-				
+
 				const iframe_src = 'https://www.bilibili.com/blackboard/live/live-activity-player.html?cid=' + id + '&quality=0';
 				obj.html = `
 					<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 						<div class="${preview.iframe_wrapper}">
 							<img src="${obj.data_obj.image_url.replace('http:', '')}" />
-							<iframe src="${iframe_src}" allowfullscreen="true"></iframe>
+							<iframe src="${iframe_src}" allowfullscreen="true" loading="lazy"></iframe>
 						</div>
 					</div>
 				`;
@@ -131,7 +131,7 @@ export async function setBilibiliHtml(obj) {
 					<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 						<div class="${preview.iframe_wrapper}">
 							<img src="${data.data.pic.replace('http:', '')}" />
-							<iframe src="${iframe_src}" allowfullscreen="true"></iframe>
+							<iframe src="${iframe_src}" allowfullscreen="true" loading="lazy"></iframe>
 						</div>
 					</div>
 				`;

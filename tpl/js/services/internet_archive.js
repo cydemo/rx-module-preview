@@ -12,7 +12,7 @@ export async function setInternetArchiveHtml(obj) {
 		const { waitMediaEmbed, setPreviewCard, insertMediaEmbed, completeMediaEmbed } = await import('./_functions.js');
 
 		waitMediaEmbed();
-		
+
 		const id = obj.matches[1];
 		const target_url = 'https://archive.org/details/' + id;
 		const iframe_src = 'https://archive.org/embed/' + id;
@@ -72,7 +72,7 @@ export async function setInternetArchiveHtml(obj) {
 					<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 						<div class="${preview.iframe_wrapper}" style="${style}">
 							${thumb}
-							<iframe src="${iframe_src}" frameborder="no" scrolling="no" allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation"></iframe>
+							<iframe src="${iframe_src}" frameborder="no" scrolling="no" loading="lazy" allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation"></iframe>
 						</div>
 					</div>
 				`;
@@ -93,7 +93,7 @@ export async function setInternetArchiveHtml(obj) {
 						<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false" style="max-width: ${x}px;">
 							<div class="${preview.iframe_wrapper}" style="${style}">
 								${thumb}
-								<iframe src="${iframe_src}" frameborder="no" scrolling="no" allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation"></iframe>
+								<iframe src="${iframe_src}" frameborder="no" scrolling="no" loading="lazy" allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation"></iframe>
 							</div>
 						</div>
 					`;

@@ -15,7 +15,7 @@ export async function setFc2Html(obj) {
 
 		const type = obj.matches[1];
 		const id = obj.matches[2];
-		
+
 		if ( type === 'video' ) {
 			const target_url = 'https://video.fc2.com/api/v3/videoplayer/' + id;
 			const iframe_src = 'https://video.fc2.com/embed/player/' + id + '/';
@@ -35,7 +35,7 @@ export async function setFc2Html(obj) {
 					<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 						<div class="${preview.iframe_wrapper}">
 							${thumb}
-							<iframe src="${iframe_src}" allowfullscreen="1"></iframe>
+							<iframe src="${iframe_src}" loading="lazy" allowfullscreen="1"></iframe>
 						</div>
 					</div>
 				`;
@@ -55,7 +55,7 @@ export async function setFc2Html(obj) {
 				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 					<div class="${preview.iframe_wrapper}">
 						${thumb}
-						<iframe src="${iframe_src}" allowfullscreen="1"></iframe>
+						<iframe src="${iframe_src}" loading="lazy" allowfullscreen="1"></iframe>
 					</div>
 				</div>
 			`;

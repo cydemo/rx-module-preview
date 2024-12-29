@@ -46,7 +46,7 @@ export async function setAppleMusicHtml(obj) {
 				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 					<div class="${preview.iframe_wrapper} apple-music-embed" style="${style}">
 						${thumb}
-						<iframe src="${iframe_src}" allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation"></iframe>
+						<iframe src="${iframe_src}" loading="lazy" allow="autoplay *; encrypted-media *; fullscreen *; clipboard-write" sandbox="allow-forms allow-popups allow-same-origin allow-scripts allow-storage-access-by-user-activation allow-top-navigation-by-user-activation"></iframe>
 					</div>
 				</div>
 			`;

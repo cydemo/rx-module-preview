@@ -56,7 +56,7 @@ export async function setSpotifyHtml(obj) {
 				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 					<div class="${preview.iframe_wrapper} spotify-embed" style="${style}">
 						${thumb}
-						<iframe src="${iframe_src}" frameborder="0"></iframe>
+						<iframe src="${iframe_src}" frameborder="0" loading="lazy"></iframe>
 					</div>
 				</div>
 			`;

@@ -36,7 +36,7 @@ export async function setUdioHtml(obj) {
 				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 					<div class="${preview.iframe_wrapper}" style="${style}">
 						${thumb}
-						<iframe src="${iframe_src}" frameborder="no" scrolling="no" marginwidth="0" marginheight="0" allowfullscreen></iframe>
+						<iframe src="${iframe_src}" frameborder="no" scrolling="no" loading="lazy" marginwidth="0" marginheight="0" allowfullscreen></iframe>
 					</div>
 				</div>
 			`;

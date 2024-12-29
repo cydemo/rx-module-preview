@@ -48,7 +48,7 @@ export async function setNaverHtml(obj) {
 
 		return;
 	}
-	
+
 	setNaverInit(obj);
 	return;
 }
@@ -81,7 +81,7 @@ export async function setNaverHtml(obj) {
 			setNaverShortForm(obj);
 			return;
 		}
-		
+
 		setPreviewCard(obj);
 		return;
 	}
@@ -105,7 +105,7 @@ export async function setNaverHtml(obj) {
 					type = 'h';
 				}
 			}
-			const style = (type === 'h') ? ' youtube-shorts' : '';
+			const short_form = (type === 'h') ? ' short_form' : '';
 
 			let thumb = $(data).filter('meta[property="og:image"]').attr('content') || '';
 				thumb = thumb ? '<img src="'+ thumb.replace(/\?.+$/, '') +'" />' : '';
@@ -113,7 +113,7 @@ export async function setNaverHtml(obj) {
 
 			obj.html =
 				'<div class="'+ preview.iframe_wrapper +'_wrapper" contenteditable="false">' +
-					'<div class="'+ preview.iframe_wrapper + style +'">' +
+					'<div class="'+ preview.iframe_wrapper + short_form +'">' +
 						thumb +
 						'<iframe src="'+ iframe_src +'" frameborder="no" scrolling="no" loading="lazy" allowfullscreen></iframe>' +
 					'</div>' +
@@ -402,7 +402,7 @@ export async function setNaverHtml(obj) {
 			obj.matches = matches;
 			obj.html =
 				'<div class="'+ preview.iframe_wrapper +'_wrapper" contenteditable="false">' +
-					'<div class="'+ preview.iframe_wrapper +' youtube-shorts">' +
+					'<div class="'+ preview.iframe_wrapper +' short_form">' +
 						thumb +
 						'<iframe src="'+ iframe_src +'" frameborder="no" scrolling="no" loading="lazy" allowfullscreen></iframe>' +
 					'</div>' +

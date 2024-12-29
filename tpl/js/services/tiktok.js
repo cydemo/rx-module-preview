@@ -98,7 +98,7 @@ export async function setTiktokHtml(obj) {
 				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 					<div class="${preview.iframe_wrapper} tiktok-embed">
 						${thumb}
-						<iframe src="${iframe_src}" frameborder="0" scrolling="no" sandbox="allow-popups allow-popups-to-escape-sandbox allow-scripts allow-top-navigation allow-same-origin"></iframe>
+						<iframe src="${iframe_src}" frameborder="0" scrolling="no" loading="lazy" sandbox="allow-popups allow-popups-to-escape-sandbox allow-scripts allow-top-navigation allow-same-origin"></iframe>
 					</div>
 				</div>
 			`;

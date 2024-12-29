@@ -99,7 +99,7 @@ export async function setGoogleFormsHtml(obj) {
 				obj.html = `
 					<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 						<div class="${preview.iframe_wrapper} google-forms-embed">
-							<iframe src="${iframe_src}" frameborder="no"></iframe>
+							<iframe src="${iframe_src}" frameborder="no" loading="lazy"></iframe>
 						</div>
 					</div>
 				`;
@@ -115,7 +115,7 @@ export async function setGoogleFormsHtml(obj) {
 				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 					<div class="${preview.iframe_wrapper} google-forms-embed">
 						${thumb}
-						<iframe src="${iframe_src}" frameborder="no"></iframe>
+						<iframe src="${iframe_src}" frameborder="no" loading="lazy"></iframe>
 					</div>
 				</div>
 			`;
@@ -125,7 +125,7 @@ export async function setGoogleFormsHtml(obj) {
 			obj.html = `
 				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 					<div class="${preview.iframe_wrapper} google-forms-embed">
-						<iframe src="${iframe_src}" frameborder="no"></iframe>
+						<iframe src="${iframe_src}" frameborder="no" loading="lazy"></iframe>
 					</div>
 				</div>
 			`;

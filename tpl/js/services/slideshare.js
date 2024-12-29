@@ -16,7 +16,7 @@ export async function setSlideshareHtml(obj) {
 		const type = obj.matches[1] ?? '';
 		const name = obj.matches[2];
 		const id = obj.matches[3];
-		
+
 		let target_url = '';
 		let iframe_src = '';
 
@@ -47,7 +47,7 @@ export async function setSlideshareHtml(obj) {
 					<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 						<div class="${preview.iframe_wrapper}">
 							${thumb}
-							<iframe src="${iframe_src}" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" allowfullscreen></iframe>
+							<iframe src="${iframe_src}" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" loading="lazy" allowfullscreen></iframe>
 						</div>
 					</div>
 				`;
@@ -95,7 +95,7 @@ export async function setSlideshareHtml(obj) {
 					<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 						<div class="${preview.iframe_wrapper}">
 							${thumb}
-							<iframe src="${iframe_src}" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" allowfullscreen></iframe>
+							<iframe src="${iframe_src}" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" loading="lazy" allowfullscreen></iframe>
 						</div>
 					</div>
 				`;

@@ -12,7 +12,7 @@ export async function setGiphyHtml(obj) {
 		const { waitMediaEmbed, setPreviewCard, insertMediaEmbed, completeMediaEmbed } = await import('./_functions.js');
 
 		waitMediaEmbed();
-		
+
 		const id = obj.matches[2];
 		const target_url = 'https://giphy.com/services/oembed?url=' + obj.matches[0];
 
@@ -49,7 +49,7 @@ export async function setGiphyHtml(obj) {
 			} else if ( type === 'video' ) {
 				thumb = `<img src="${data.thumbnail_url}" />`;
 				style = `padding-bottom: ${((100 * data.height) / data.width).toFixed(2)}%;`;
-				iframe_html = `<iframe src="https://giphy.com/embed/${id}" allowfullscreen="true" frameborder="0" scrolling="no" allowFullScreen></iframe>`;
+				iframe_html = `<iframe src="https://giphy.com/embed/${id}" allowfullscreen="true" frameborder="0" scrolling="no" loading="lazy" allowFullScreen></iframe>`;
 			} else {
 				setPreviewCard(obj);
 				return false;

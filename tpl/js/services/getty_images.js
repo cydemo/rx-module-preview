@@ -12,7 +12,7 @@ export async function setGettyImagesHtml(obj) {
 		const { waitMediaEmbed, setPreviewCard, insertMediaEmbed, completeMediaEmbed } = await import('./_functions.js');
 
 		waitMediaEmbed();
-		
+
 		const type = obj.matches[1];
 		const name = obj.matches[2];
 		const id = obj.matches[3];
@@ -63,7 +63,7 @@ export async function setGettyImagesHtml(obj) {
 					<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 						<div class="${preview.iframe_wrapper} gettyimage-embed" style="${style}">
 							${thumb}
-							<iframe src="${iframe_src}" allowfullscreen="true" frameborder="no" scrolling="no"></iframe>
+							<iframe src="${iframe_src}" allowfullscreen="true" frameborder="no" scrolling="no" loading="lazy"></iframe>
 						</div>
 					</div>
 				`;

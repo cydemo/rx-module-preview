@@ -33,7 +33,7 @@ export async function setCodesandboxHtml(obj) {
 				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 					<div class="${preview.iframe_wrapper} codesandbox-embed">
 						${thumb}
-						<iframe src="${iframe_src}" title="${data.title}" sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"></iframe>
+						<iframe src="${iframe_src}" title="${data.title}" loading="lazy" sandbox="allow-forms allow-modals allow-popups allow-presentation allow-same-origin allow-scripts"></iframe>
 					</div>
 				</div>
 			`;

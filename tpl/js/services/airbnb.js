@@ -38,7 +38,7 @@ export async function setAirbnbHtml(obj) {
 			<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 				<div class="${preview.iframe_wrapper} airbnb-embed" style="${style}">
 					${thumb}
-					<iframe src="${iframe_src}" frameborder="0" scrolling="no" style="${style}"></iframe>
+					<iframe src="${iframe_src}" frameborder="0" scrolling="no" loading="lazy" style="${style}"></iframe>
 				</div>
 			</div>`;
 

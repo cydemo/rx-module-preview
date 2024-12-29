@@ -30,7 +30,7 @@ export async function setPinterestHtml(obj) {
 					setPreviewCard(obj);
 					return false;
 				}
-				
+
 				matches = data.match(preview.reg_exps.pinterestRegExp);
 				if ( !matches || !matches[1] ) {
 					setPreviewCard(obj);
@@ -97,7 +97,7 @@ export async function setPinterestHtml(obj) {
 				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 					<div class="${preview.iframe_wrapper} pinterest-embed" style="width: ${data.width}px; height: ${data.height}px; max-width: 100%;">
 						${thumb}
-						<iframe src="${iframe_src}" frameborder="no" scrolling="no"></iframe>
+						<iframe src="${iframe_src}" frameborder="no" scrolling="no" loading="lazy"></iframe>
 					</div>
 				</div>
 			`;

@@ -47,7 +47,7 @@ export async function setYoukuHtml(obj) {
 				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 					<div class="${preview.iframe_wrapper}">
 						${thumb}
-						<iframe src="${iframe_src}" frameborder="0" scrolling="no" allowtransparency="true" allowfullscreen="true"></iframe>
+						<iframe src="${iframe_src}" frameborder="0" scrolling="no" loading="lazy" allowtransparency="true" allowfullscreen="true"></iframe>
 					</div>
 				</div>
 			`;

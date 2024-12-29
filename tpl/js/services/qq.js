@@ -25,7 +25,7 @@ export async function setQqHtml(obj) {
 			<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 				<div class="${preview.iframe_wrapper}">
 					${thumb}
-					<iframe src="${iframe_src}" frameborder="no" scrolling="no" allowfullscreen="true"></iframe>
+					<iframe src="${iframe_src}" frameborder="no" scrolling="no" loading="lazy" allowfullscreen="true"></iframe>
 				</div>
 			</div>
 		`;

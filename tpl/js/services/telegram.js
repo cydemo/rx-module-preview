@@ -46,7 +46,7 @@ export async function setTelegramHtml(obj) {
 				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 					<div class="${preview.iframe_wrapper} telegram-embed">
 						${thumb}
-						<iframe src="${iframe_src}" frameborder="0" scrolling="no" allowfullscreen></iframe>
+						<iframe src="${iframe_src}" frameborder="0" scrolling="no" loading="lazy" allowfullscreen></iframe>
 					</div>
 				</div>
 			`;

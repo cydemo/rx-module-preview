@@ -35,7 +35,7 @@ export async function setDailymotionHtml(obj) {
 
 				const thumb = data.thumbnail_url ? `<img src="${data.thumbnail_url}" />` : '';
 				if ( data.aspect_ratio < 0.67 ) {
-					style = ' youtube-shorts';
+					style = ' short_form';
 				} else {
 					style = '" style="padding-bottom: ' + ( 100 / data.aspect_ratio ).toFixed(2) + '%;';
 				}
@@ -45,7 +45,7 @@ export async function setDailymotionHtml(obj) {
 					<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 						<div class="${preview.iframe_wrapper}${style}">
 							${thumb}
-							<iframe src="${iframe_src}" frameborder="0" allowfullscreen allow="fullscreen; picture-in-picture; web-share"></iframe>
+							<iframe src="${iframe_src}" frameborder="0" loading="lazy" allowfullscreen allow="fullscreen; picture-in-picture; web-share"></iframe>
 						</div>
 					</div>
 				`;
@@ -76,7 +76,7 @@ export async function setDailymotionHtml(obj) {
 					<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 						<div class="${preview.iframe_wrapper}">
 							${thumb}
-							<iframe src="${iframe_src}" frameborder="0" allowfullscreen allow="fullscreen; picture-in-picture; web-share"></iframe>
+							<iframe src="${iframe_src}" frameborder="0" loading="lazy" allowfullscreen allow="fullscreen; picture-in-picture; web-share"></iframe>
 						</div>
 					</div>
 				`;

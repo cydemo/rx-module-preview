@@ -103,7 +103,7 @@ export async function setFlickrHtml(obj) {
 					<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 						<div class="${preview.iframe_wrapper}" style="padding-bottom: ${ratio}%">
 							${thumb}
-							<iframe src="${iframe_src}" frameborder="0" allowfullscreen></iframe>
+							<iframe src="${iframe_src}" frameborder="0" loading="lazy" allowfullscreen></iframe>
 						</div>
 					</div>
 				`;

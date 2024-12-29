@@ -12,7 +12,7 @@ export async function setInstagramHtml(obj) {
 		const { waitMediaEmbed, setPreviewCard, insertMediaEmbed, completeMediaEmbed, procPreviewImageFileInfo } = await import('./_functions.js');
 
 		waitMediaEmbed();
-		
+
 		const matches = obj.matches;
 		const id = matches[3];
 		let type = '';
@@ -58,7 +58,7 @@ export async function setInstagramHtml(obj) {
 				obj.html = `
 					<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 						<div class="${preview.iframe_wrapper} instagram-embed">
-							<iframe src="${iframe_src}" class="instagram-media instagram-media-rendered" frameborder="0" height="480" scrolling="no"></iframe>
+							<iframe src="${iframe_src}" class="instagram-media instagram-media-rendered" frameborder="0" height="480" scrolling="no" loading="lazy"></iframe>
 						</div>
 					</div>
 				`;
@@ -81,7 +81,7 @@ export async function setInstagramHtml(obj) {
 				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 					<div class="${preview.iframe_wrapper} instagram-embed">
 						<img src="${thumb}" style="display: none;" />
-						<iframe src="${iframe_src}" class="instagram-media instagram-media-rendered" frameborder="0" height="480" scrolling="no"></iframe>
+						<iframe src="${iframe_src}" class="instagram-media instagram-media-rendered" frameborder="0" height="480" scrolling="no" loading="lazy"></iframe>
 					</div>
 				</div>
 			`;
@@ -91,7 +91,7 @@ export async function setInstagramHtml(obj) {
 			obj.html = `
 				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 					<div class="${preview.iframe_wrapper} instagram-embed">
-						<iframe src="${iframe_src}" class="instagram-media instagram-media-rendered" frameborder="0" height="480" scrolling="no"></iframe>
+						<iframe src="${iframe_src}" class="instagram-media instagram-media-rendered" frameborder="0" height="480" scrolling="no" loading="lazy"></iframe>
 					</div>
 				</div>
 			`;

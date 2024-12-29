@@ -15,7 +15,7 @@ export async function setPreziHtml(obj) {
 
 		const type = obj.matches[1];
 		const id = obj.matches[2];
-		
+
 		let target_url = '';
 		let matches = [];
 
@@ -57,7 +57,7 @@ export async function setPreziHtml(obj) {
 					<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 						<div class="${preview.iframe_wrapper}">
 							${thumb}
-							<iframe src="${iframe_src}" frameborder="no" scrolling="no" allowfullscreen></iframe>
+							<iframe src="${iframe_src}" frameborder="no" scrolling="no" loading="lazy" allowfullscreen></iframe>
 						</div>
 					</div>
 				`;
@@ -101,7 +101,7 @@ export async function setPreziHtml(obj) {
 					<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 						<div class="${preview.iframe_wrapper}">
 							${thumb}
-							<iframe src="${iframe_src}" frameborder="no" scrolling="no" allowfullscreen></iframe>
+							<iframe src="${iframe_src}" frameborder="no" scrolling="no" loading="lazy" allowfullscreen></iframe>
 						</div>
 					</div>
 				`;

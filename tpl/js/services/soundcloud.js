@@ -64,7 +64,7 @@ export async function setSoundcloudHtml(obj) {
 				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 					<div class="${preview.iframe_wrapper} soundcloud-embed" style="${style}">
 						${thumb}
-						<iframe src="${iframe_src}" frameborder="no" scrolling="no"></iframe>
+						<iframe src="${iframe_src}" frameborder="no" scrolling="no" loading="lazy"></iframe>
 					</div>
 				</div>
 			`;

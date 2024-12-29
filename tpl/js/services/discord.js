@@ -49,7 +49,7 @@ export async function setDiscordHtml(obj) {
 					<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 						<div class="${preview.iframe_wrapper} discord-embed">
 							${thumb}
-							<iframe src="${iframe_src}"></iframe>
+							<iframe src="${iframe_src}" loading="lazy"></iframe>
 						</div>
 					</div>
 				`;

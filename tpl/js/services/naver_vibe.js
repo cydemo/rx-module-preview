@@ -64,7 +64,7 @@ export async function setNaverVibeHtml(obj) {
 				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 					<div class="${preview.iframe_wrapper} spotify-embed" style="${style}">
 						${thumb}
-						<iframe src="${iframe_src}" style="width: 100%; height: ${(height+8)}px;" frameborder="no" scrolling="no" marginwidth="0" marginheight="0" allow="autoplay" allowfullscreen></iframe>
+						<iframe src="${iframe_src}" style="width: 100%; height: ${(height+8)}px;" frameborder="no" scrolling="no" loading="lazy" marginwidth="0" marginheight="0" allow="autoplay" allowfullscreen></iframe>
 					</div>
 				</div>
 			`;

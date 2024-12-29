@@ -51,7 +51,7 @@ export async function setTedHtml(obj) {
 				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 					<div class="${preview.iframe_wrapper}">
 						${thumb}
-						<iframe src="${iframe_src}?language=ko" frameborder="0" scrolling="no" marginwidth="0" allowfullscreen></iframe>
+						<iframe src="${iframe_src}?language=ko" frameborder="0" scrolling="no" loading="lazy" marginwidth="0" allowfullscreen></iframe>
 					</div>
 				</div>
 			`;

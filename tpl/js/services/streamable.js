@@ -52,7 +52,7 @@ export async function setStreamableHtml(obj) {
 				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 					<div class="${preview.iframe_wrapper}" style="${style}">
 						${thumb}
-						<iframe src="${iframe_src}?loop=0" frameborder="0" allowfullscreen></iframe>
+						<iframe src="${iframe_src}?loop=0" frameborder="0" loading="lazy" allowfullscreen></iframe>
 					</div>
 				</div>
 			`;

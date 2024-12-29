@@ -98,7 +98,7 @@ export async function setTumblrHtml(obj) {
 
 	async function setTumblr(obj) {
 		const { setPreviewCard, insertMediaEmbed, completeMediaEmbed } = await import('./_functions.js');
-		
+
 		let matches = obj.matches;
 		if ( matches.length < 1 ) {
 			matches = obj.paste.match(preview.reg_exps.tumblrRegExp);
@@ -163,7 +163,7 @@ export async function setTumblrHtml(obj) {
 					'<div class="'+ preview.iframe_wrapper +'_wrapper" contenteditable="false">' +
 						'<div class="'+ preview.iframe_wrapper +' tumblr-post">' +
 							thumb +
-							'<iframe src="'+ iframe_src +'" class="tumblr-embed tumblr-embed-loaded" frameborder="0" allowfullscreen="true"></iframe>' +
+							'<iframe src="'+ iframe_src +'" class="tumblr-embed tumblr-embed-loaded" frameborder="0" loading="lazy" allowfullscreen="true"></iframe>' +
 						'</div>' +
 					'</div>';
 

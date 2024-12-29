@@ -47,7 +47,7 @@ export async function setTypeformHtml(obj) {
 				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 					<div class="${preview.iframe_wrapper} typeform-embed" data-tf-widget="${id}" data-tf-auto-resize="360, 800">
 						${thumb}
-						<iframe src="${iframe_src}" allowfullscreen></iframe>
+						<iframe src="${iframe_src}" loading="lazy" allowfullscreen></iframe>
 					</div>
 				</div>
 			`;

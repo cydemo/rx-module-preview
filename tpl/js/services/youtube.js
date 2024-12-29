@@ -15,7 +15,7 @@ export async function setYoutubeHtml(obj) {
 
 		waitMediaEmbed();
 
-		let target_url, iframe_src, type, id, queries, start, list, style, name, ratio;
+		let target_url, iframe_src, type, id, queries, start, list, style, short_form, ratio, thumb;
 
 		type = matches[1];
 		id = ( matches[2] !== 'videoseries' ) ? matches[2] : '';
@@ -81,19 +81,22 @@ export async function setYoutubeHtml(obj) {
 
 			ratio = (data.height / data.width * 100).toFixed(2);
 			if ( type === 'shorts' ) {
-				name = ' youtube-shorts';
+				short_form = ' youtube-shorts';
+				style = '';
+				thumb = data.thumbnail_url ? data.thumbnail_url.replace('hqdefault', 'maxres2') : '';
 			} else {
-				name = '';
-				style = 'padding-bottom: '+ ratio +'%;';
+				short_form = '';
+				style = ' style="padding-bottom: '+ ratio +'%;"';
+				thumb = data.thumbnail_url ? data.thumbnail_url.replace('hqdefault', 'maxresdefault') : '';
 			}
-						
-			const thumb = data.thumbnail_url ? '<img src="'+ data.thumbnail_url +'" />' : '';
+
+			thumb = thumb ? '<img src="'+ thumb +'" onerror="this.src=\''+ data.thumbnail_url.replace('hqdefault', 'mqdefault') +'\'" />' : '';
 
 			obj.html = `
 				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
-					<div class="${preview.iframe_wrapper}${name}" style="${style}">
+					<div class="${preview.iframe_wrapper}${short_form}"${style}>
 						${thumb}
-						<iframe src="${iframe_src}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+						<iframe src="${iframe_src}" frameborder="0" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 					</div>
 				</div>
 			`;

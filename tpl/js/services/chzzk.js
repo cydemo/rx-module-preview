@@ -33,19 +33,51 @@ export async function setChzzkHtml(obj) {
 					setPreviewCard(obj);
 					return false;
 				}
-				const thumb = data.content.thumbnailImageUrl ? '<img src="'+ data.content.thumbnailImageUrl +'" />' : ''; '';
 
 				const iframe_src = 'https://chzzk.naver.com/embed/clip/' + id;
 
-				obj.html = `
-					<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
-						<div class="${preview.iframe_wrapper}">
-							${thumb}
-							<iframe src="${iframe_src}" scrolling="no" frameborder="no" allow="web-share" allowfullscreen></iframe>
-						</div>
-					</div>`;
-				insertMediaEmbed(obj);
-				completeMediaEmbed();
+				if ( data.content.thumbnailImageUrl ) {
+					let short_form = '';
+					const img = new Image();
+
+					img.src = data.content.thumbnailImageUrl;
+					img.onload = function() {
+						const thumb = `<img src="${data.content.thumbnailImageUrl}" />`;
+						const ratio = this.naturalHeight / this.naturalWidth;
+						if ( ratio > 1 ) {
+							short_form = ' short_form';
+						}
+
+						obj.html = `
+							<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
+								<div class="${preview.iframe_wrapper}${short_form}">
+									${thumb}
+									<iframe src="${iframe_src}" scrolling="no" frameborder="no" loading="lazy" allow="web-share" allowfullscreen></iframe>
+								</div>
+							</div>`;
+						insertMediaEmbed(obj);
+						completeMediaEmbed();
+					};
+					img.onerror = function() {
+						obj.html = `
+							<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
+								<div class="${preview.iframe_wrapper}">
+									<iframe src="${iframe_src}" scrolling="no" frameborder="no" loading="lazy" allow="web-share" allowfullscreen></iframe>
+								</div>
+							</div>`;
+						insertMediaEmbed(obj);
+						completeMediaEmbed();
+					};
+				} else {
+					obj.html = `
+						<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
+							<div class="${preview.iframe_wrapper}">
+								<iframe src="${iframe_src}" scrolling="no" frameborder="no" loading="lazy" allow="web-share" allowfullscreen></iframe>
+							</div>
+						</div>`;
+					insertMediaEmbed(obj);
+					completeMediaEmbed();
+				}
 			} catch (error) {
 				console.error('Error fetching '+ title +' data:', error);
 				setPreviewCard(obj);

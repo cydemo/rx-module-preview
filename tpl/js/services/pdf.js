@@ -62,7 +62,7 @@ export async function setPdfHtml(obj) {
 								<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 									<div class="${preview.iframe_wrapper} pdf-embed">
 										${thumb}
-										<iframe src="${iframe_src}" data-src="${iframe_src}" allowfullscreen="true" frameborder="no" scrolling="no"></iframe>
+										<iframe src="${iframe_src}" data-src="${iframe_src}" allowfullscreen="true" frameborder="no" scrolling="no" loading="lazy"></iframe>
 									</div>
 								</div>
 							`;
@@ -78,7 +78,7 @@ export async function setPdfHtml(obj) {
 				obj.html = `
 					<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 						<div class="${preview.iframe_wrapper} pdf-embed">
-							<iframe src="${iframe_src}" data-src="${iframe_src}" allowfullscreen="true" frameborder="no" scrolling="no"></iframe>
+							<iframe src="${iframe_src}" data-src="${iframe_src}" allowfullscreen="true" frameborder="no" scrolling="no" loading="lazy"></iframe>
 						</div>
 					</div>
 				`;

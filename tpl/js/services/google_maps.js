@@ -28,7 +28,7 @@ export async function setGoogleMapsHtml(obj) {
 					setPreviewCard(obj);
 					return false;
 				}
-				
+
 				target_url = decodeURIComponent(data);
 
 				const googleMapsFullRegExp = /^https:\/\/(?:www.)?google.com\/maps(?:\/|\?)(?:(?:(place|search|q))(?:\/|=))?(?:([^@/?&#!\s]+)\/?)?(?:\/?@([^/?&#\s!]+))?(?:\/?data=([^/?&#\s=]+))?/;
@@ -68,7 +68,7 @@ export async function setGoogleMapsHtml(obj) {
 		let is_panorama = false;
 		let is_satellite = false;
 		let unit, value, zoom, fov, heading, pitch;
-		
+
 		if ( levels ) {
 			if ( levels.match(/^cid=\d+/) ) {
 				setPreviewCard(obj);
@@ -105,7 +105,7 @@ export async function setGoogleMapsHtml(obj) {
 				}
 			}
 		}
-		
+
 		if ( !is_panorama && !zoom ) {
 			zoom = 17;
 			levels = '&z=17';

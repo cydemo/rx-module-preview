@@ -26,7 +26,7 @@ export async function setGoogleDriveHtml(obj) {
 			obj.html = `
 				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 					<div class="${preview.iframe_wrapper} google-drive-embed">
-						<iframe src="${iframe_src}" allowfullscreen="true" frameborder="no"></iframe>
+						<iframe src="${iframe_src}" allowfullscreen="true" frameborder="no" loading="lazy"></iframe>
 					</div>
 				</div>
 			`;
@@ -47,7 +47,7 @@ export async function setGoogleDriveHtml(obj) {
 					obj.html = `
 						<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 							<div class="${preview.iframe_wrapper} google-drive-embed">
-								<iframe src="${iframe_src}" allowfullscreen="true" frameborder="no"></iframe>
+								<iframe src="${iframe_src}" allowfullscreen="true" frameborder="no" loading="lazy"></iframe>
 							</div>
 						</div>
 					`;
@@ -65,7 +65,7 @@ export async function setGoogleDriveHtml(obj) {
 					<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 						<div class="${preview.iframe_wrapper} google-drive-embed">
 							${thumb}
-							<iframe src="${iframe_src}" allowfullscreen="true" frameborder="no"></iframe>
+							<iframe src="${iframe_src}" allowfullscreen="true" frameborder="no" loading="lazy"></iframe>
 						</div>
 					</div>
 				`;
@@ -75,7 +75,7 @@ export async function setGoogleDriveHtml(obj) {
 				obj.html = `
 					<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 						<div class="${preview.iframe_wrapper} google-drive-embed">
-							<iframe src="${iframe_src}" allowfullscreen="true" frameborder="no"></iframe>
+							<iframe src="${iframe_src}" allowfullscreen="true" frameborder="no" loading="lazy"></iframe>
 						</div>
 					</div>
 				`;

@@ -40,7 +40,7 @@ export async function setAmazonMusicHtml(obj) {
 			<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 				<div class="${preview.iframe_wrapper} amazon-music-embed${name}" style="${style}">
 					${thumb}
-					<iframe src="${iframe_src}" id="AmazonMusicEmbed${id}" frameborder="0" scrolling="no" style="${style}"></iframe>
+					<iframe src="${iframe_src}" id="AmazonMusicEmbed${id}" frameborder="0" scrolling="no" loading="lazy" style="${style}"></iframe>
 				</div>
 			</div>`;
 

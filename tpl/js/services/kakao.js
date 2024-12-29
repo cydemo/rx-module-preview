@@ -61,7 +61,7 @@ export async function setKakaoHtml(obj) {
 				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 					<div class="${preview.iframe_wrapper}">
 						${thumb}
-						<iframe src="${iframe_src}" allowfullscreen="true"></iframe>
+						<iframe src="${iframe_src}" loading="lazy" allowfullscreen="true"></iframe>
 					</div>
 				</div>
 			`;
@@ -83,7 +83,7 @@ export async function setKakaoHtml(obj) {
 			return false;
 		}
 		const name = matches[1] ?? '';
-		const style = ( name !== 'video' ) ? '' : ' youtube-shorts';
+		const short_form = ( name === 'video' ) ? ' short_form' : '';
 
 		obj.url = ( name !== 'video' ) ? obj.url : 'https://tv.kakao.com/v/' + obj.id;
 
@@ -117,9 +117,9 @@ export async function setKakaoHtml(obj) {
 
 			obj.html = `
 				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
-					<div class="${preview.iframe_wrapper}${style}">
+					<div class="${preview.iframe_wrapper}${short_form}">
 						${thumb}
-						<iframe src="${iframe_src}"  allowfullscreen frameborder="0" scrolling="no" allow="autoplay"></iframe>
+						<iframe src="${iframe_src}" allowfullscreen frameborder="0" scrolling="no" loading="lazy" allow="autoplay"></iframe>
 					</div>
 				</div>
 			`;

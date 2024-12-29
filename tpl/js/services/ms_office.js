@@ -48,7 +48,7 @@ export async function setMsOfficeHtml(obj) {
 			<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 				<div class="${preview.iframe_wrapper} ms-office-embed">
 					${thumb}
-					<iframe src="${iframe_src}" data-src="${iframe_src}" allowfullscreen="true" frameborder="no"></iframe>
+					<iframe src="${iframe_src}" data-src="${iframe_src}" allowfullscreen="true" frameborder="no" loading="lazy"></iframe>
 				</div>
 			</div>
 		`;

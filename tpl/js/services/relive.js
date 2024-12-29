@@ -37,7 +37,7 @@ export async function setReliveHtml(obj) {
 				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 					<div class="${preview.iframe_wrapper} relive-embed">
 						${thumb}
-						<iframe src="${iframe_src}" allowfullscreen="" frameborder="0" scrolling="no"></iframe>
+						<iframe src="${iframe_src}" allowfullscreen="" frameborder="0" scrolling="no" loading="lazy"></iframe>
 					</div>
 				</div>
 			`;

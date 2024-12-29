@@ -28,7 +28,7 @@ export async function setXHtml(obj) {
 		if ( id ) {
 			added_info += '-' + id;
 		}
-		
+
 		let target_url = '';
 		let iframe_src = '';
 
@@ -62,7 +62,7 @@ export async function setXHtml(obj) {
 					<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 						<div class="${preview.iframe_wrapper} twitter-status" id="${added_info}">
 							${thumb}
-							<iframe src="${iframe_src}" data-tweet-id="${id}" id="twitter-widget-0" scrolling="no" frameborder="0" style="position: static; height: 450px; display: block;"></iframe>
+							<iframe src="${iframe_src}" data-tweet-id="${id}" id="twitter-widget-0" scrolling="no" frameborder="0" loading="lazy" style="position: static; height: 450px; display: block;"></iframe>
 						</div>
 					</div>
 				`;
@@ -74,7 +74,7 @@ export async function setXHtml(obj) {
 				obj.html = `
 					<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 						<div class="${preview.iframe_wrapper} twitter-status" id="${added_info}">
-							<iframe src="${iframe_src}" data-tweet-id="${id}" id="twitter-widget-0" scrolling="no" frameborder="0" style="position: static; height: 450px; display: block;"></iframe>
+							<iframe src="${iframe_src}" data-tweet-id="${id}" id="twitter-widget-0" scrolling="no" frameborder="0" loading="lazy" style="position: static; height: 450px; display: block;"></iframe>
 						</div>
 					</div>
 				`;
@@ -112,7 +112,7 @@ export async function setXHtml(obj) {
 						<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 							<div class="${preview.iframe_wrapper} twitter-profile" id="${added_info}">
 								${thumb}
-								<iframe src="${iframe_src}" id="twitter-widget-0" scrolling="no" frameborder="0" style="position: static; height: 450px; display: block;"></iframe>
+								<iframe src="${iframe_src}" id="twitter-widget-0" scrolling="no" frameborder="0" loading="lazy" style="position: static; height: 450px; display: block;"></iframe>
 							</div>
 						</div>
 					`;
@@ -123,7 +123,7 @@ export async function setXHtml(obj) {
 					obj.html = `
 						<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 							<div class="${preview.iframe_wrapper} twitter-profile" id="${added_info}">
-								<iframe src="${iframe_src}" id="twitter-widget-0" scrolling="no" frameborder="0" style="position: static; height: 450px; display: block;"></iframe>
+								<iframe src="${iframe_src}" id="twitter-widget-0" scrolling="no" frameborder="0" loading="lazy" style="position: static; height: 450px; display: block;"></iframe>
 							</div>
 						</div>
 					`;
@@ -144,7 +144,7 @@ export async function setXHtml(obj) {
 				obj.html = `
 					<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 						<div class="${preview.iframe_wrapper} twitter-list" id="${added_info}">
-							<iframe src="${iframe_src}" id="twitter-widget-0" scrolling="no" frameborder="0" style="position: static; height: 450px; display: block;"></iframe>
+							<iframe src="${iframe_src}" id="twitter-widget-0" scrolling="no" frameborder="0" loading="lazy" style="position: static; height: 450px; display: block;"></iframe>
 						</div>
 					</div>
 				`;

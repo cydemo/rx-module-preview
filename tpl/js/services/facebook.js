@@ -5,7 +5,7 @@ export async function setFacebookHtml(obj) {
 
 	const fbShareRegExp = /^https?:\/\/(?:m.|www.)?facebook.com\/share(?:\/(p|v|r|g))?\/\w+\//;
 	const fbShortRegExp = /^https?:\/\/fb.watch\/vH[a-zA-Z][\w_-]+\/?/;
-	
+
 	let matches = obj.paste.match(fbShareRegExp);
 	if (!matches || !matches[0]) {
 		matches = obj.paste.match(fbShortRegExp);

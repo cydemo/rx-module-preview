@@ -24,7 +24,7 @@ export async function setGoogleBooksHtml(obj) {
 			<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 				<div class="${preview.iframe_wrapper} google-books-embed">
 					${thumb}
-					<iframe src="${iframe_src}" scrolling="no" frameborder="no"></iframe>
+					<iframe src="${iframe_src}" scrolling="no" frameborder="no" loading="lazy"></iframe>
 				</div>
 			</div>
 		`;

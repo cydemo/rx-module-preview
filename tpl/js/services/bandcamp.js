@@ -86,7 +86,7 @@ export async function setBandcampHtml(obj) {
 				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 					<div class="${preview.iframe_wrapper} bandcamp-embed" style="${style}">
 						${thumb}
-						<iframe src="${iframe_src}" frameborder="0" scrolling="no" style="${style}" seamless></iframe>
+						<iframe src="${iframe_src}" frameborder="0" scrolling="no" loading="lazy" style="${style}" seamless></iframe>
 					</div>
 				</div>`;
 

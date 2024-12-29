@@ -12,7 +12,7 @@ export async function setAzquotesHtml(obj) {
 		const { waitMediaEmbed, procPreviewImageFileInfo, insertMediaEmbed, completeMediaEmbed } = await import('./_functions.js');
 
 		waitMediaEmbed();
-	
+
 		const id = obj.matches[1];
 		const target_url = 'https://www.azquotes.com/quote/' + id;
 

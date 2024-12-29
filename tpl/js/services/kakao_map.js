@@ -5,7 +5,7 @@ export async function setKakaoMapHtml(obj) {
 
 	try {
 		const { waitMediaEmbed, setPreviewCard } = await import('./_functions.js');
-		
+
 		waitMediaEmbed();
 
 		if ( obj.matches[1] ) {

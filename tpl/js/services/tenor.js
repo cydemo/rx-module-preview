@@ -6,7 +6,7 @@ export async function setTenorHtml(obj) {
 	const { waitMediaEmbed, setPreviewCard } = await import('./_functions.js');
 
 	waitMediaEmbed();
-	
+
 	const target_url = obj.matches[0];
 
 	// TENOR.gif
@@ -87,7 +87,7 @@ export async function setTenorHtml(obj) {
 				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 					<div class="${preview.iframe_wrapper} tenor-video-embed">
 						${thumb}
-						<iframe src="${iframe_src}" frameborder="0" allowtransparency="true" allowfullscreen="true" scrolling="no"></iframe>
+						<iframe src="${iframe_src}" frameborder="0" loading="lazy" allowtransparency="true" allowfullscreen="true" scrolling="no"></iframe>
 					</div>
 				</div>
 			`;

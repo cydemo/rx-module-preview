@@ -54,7 +54,7 @@ export async function setVimeoHtml(obj) {
 				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 					<div class="${preview.iframe_wrapper}" style="${style}">
 						${thumb}
-						<iframe src="${iframe_src}" frameborder="0" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
+						<iframe src="${iframe_src}" frameborder="0" loading="lazy" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen></iframe>
 					</div>
 				</div>
 			`;

@@ -12,7 +12,7 @@ export async function setImgurHtml(obj) {
 		const { waitMediaEmbed, setPreviewCard, insertMediaEmbed, completeMediaEmbed } = await import('./_functions.js');
 
 		waitMediaEmbed();
-		
+
 		const id = obj.matches[3];
 		let type = '';
 
@@ -39,7 +39,7 @@ export async function setImgurHtml(obj) {
 				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 					<div class="${preview.iframe_wrapper} imgur-embed">
 						<img src="${thumb}" />
-						<iframe src="${iframe_src}" class="imgur-embed-iframe-pub" allowfullscreen="true" frameborder="no" scrolling="no"></iframe>
+						<iframe src="${iframe_src}" class="imgur-embed-iframe-pub" allowfullscreen="true" frameborder="no" scrolling="no" loading="lazy"></iframe>
 					</div>
 				</div>
 			`;
@@ -88,7 +88,7 @@ export async function setImgurHtml(obj) {
 				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 					<div class="${preview.iframe_wrapper} imgur-embed">
 						${thumb}
-						<iframe src="${iframe_src}" class="imgur-embed-iframe-pub" allowfullscreen="true" frameborder="no" scrolling="no"></iframe>
+						<iframe src="${iframe_src}" class="imgur-embed-iframe-pub" allowfullscreen="true" frameborder="no" scrolling="no" loading="lazy"></iframe>
 					</div>
 				</div>
 			`;

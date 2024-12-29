@@ -12,7 +12,7 @@ export async function setThreadsHtml(obj) {
 		const { waitMediaEmbed, setPreviewCard, insertMediaEmbed, completeMediaEmbed, procPreviewImageFileInfo } = await import('./_functions.js');
 
 		waitMediaEmbed();
-		
+
 		const name = obj.matches[1];
 		const id = obj.matches[2];
 
@@ -37,7 +37,7 @@ export async function setThreadsHtml(obj) {
 				obj.html = `
 					<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 						<div class="${preview.iframe_wrapper} threads-embed">
-							<iframe src="${iframe_src}" frameborder="0" scrolling="no" allowtransparency="true" allowfullscreen="true"></iframe>
+							<iframe src="${iframe_src}" frameborder="0" loading="lazy" scrolling="no" allowtransparency="true" allowfullscreen="true"></iframe>
 						</div>
 					</div>
 				`;
@@ -60,7 +60,7 @@ export async function setThreadsHtml(obj) {
 				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 					<div class="${preview.iframe_wrapper} threads-embed">
 						<img src="${thumb}" style="display: none;" />
-						<iframe src="${iframe_src}" frameborder="0" scrolling="no"></iframe>
+						<iframe src="${iframe_src}" frameborder="0" scrolling="no" loading="lazy"></iframe>
 					</div>
 				</div>
 			`;
@@ -70,7 +70,7 @@ export async function setThreadsHtml(obj) {
 			obj.html = `
 				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 					<div class="${preview.iframe_wrapper} threads-embed">
-						<iframe src="${iframe_src}" frameborder="0" scrolling="no" allowtransparency="true" allowfullscreen="true"></iframe>
+						<iframe src="${iframe_src}" frameborder="0" scrolling="no" loading="lazy" allowtransparency="true" allowfullscreen="true"></iframe>
 					</div>
 				</div>
 			`;

@@ -18,7 +18,7 @@ export async function setSoopHtml(obj) {
 		const id = obj.matches[3];
 		const style = obj.matches[4] ?? '';
 		const hash = obj.matches[5] ? Number(obj.matches[5]) : 1;
-		
+
 		let target_url = '';
 		let iframe_src = '';
 
@@ -77,7 +77,7 @@ export async function setSoopHtml(obj) {
 					<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 						<div class="${preview.iframe_wrapper}">
 							${thumb}
-							<iframe src="${iframe_src}" frameborder="0" scrolling="no" allowtransparency="true" allowfullscreen="true"></iframe>
+							<iframe src="${iframe_src}" frameborder="0" scrolling="no" loading="lazy" allowtransparency="true" allowfullscreen="true"></iframe>
 						</div>
 					</div>
 				`;
@@ -147,7 +147,7 @@ export async function setSoopHtml(obj) {
 						<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 							<div class="${preview.iframe_wrapper}">
 								${thumb}
-								<iframe src="${iframe_src}" allowfullscreen="true"></iframe>
+								<iframe src="${iframe_src}" loading="lazy" allowfullscreen="true"></iframe>
 							</div>
 						</div>
 					`;
@@ -158,7 +158,7 @@ export async function setSoopHtml(obj) {
 						<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 							<div class="${preview.iframe_wrapper}">
 								${thumb}
-								<iframe src="${iframe_src}" allowfullscreen="true"></iframe>
+								<iframe src="${iframe_src}" loading="lazy" allowfullscreen="true"></iframe>
 							</div>
 						</div>
 					`;
@@ -180,7 +180,7 @@ export async function setSoopHtml(obj) {
 						setPreviewCard(obj);
 						return false;
 					}
-					
+
 					let thumb = $(data).filter('meta[property="og:image"]').attr('content') || '';
 						thumb = thumb ? '<img src="'+ thumb +'" />' : '';
 
@@ -188,7 +188,7 @@ export async function setSoopHtml(obj) {
 						<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 							<div class="${preview.iframe_wrapper}">
 								${thumb}
-								<iframe src="${iframe_src}" frameborder="0" scrolling="no" allowtransparency="true" allowfullscreen="true"></iframe>
+								<iframe src="${iframe_src}" frameborder="0" scrolling="no" loading="lazy" allowtransparency="true" allowfullscreen="true"></iframe>
 							</div>
 						</div>
 					`;

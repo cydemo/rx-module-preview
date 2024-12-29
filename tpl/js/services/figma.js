@@ -36,7 +36,7 @@ export async function setFigmaHtml(obj) {
 				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 					<div class="${preview.iframe_wrapper}" style="${style}">
 						${thumb}
-						<iframe src="${iframe_src}" allowfullscreen></iframe>
+						<iframe src="${iframe_src}" loading="lazy" allowfullscreen></iframe>
 					</div>
 				</div>
 			`;
