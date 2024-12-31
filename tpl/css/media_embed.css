@@ -394,6 +394,11 @@
 	display: inline-block; width: 550px; max-width: 100%; height: auto;
     padding-bottom: 10px; border-bottom: 1px solid #c4cfd6; text-align: left;
 }
+.media_embed.twitter-status > iframe,
+.media_embed.twitter-list > iframe,
+.media_embed.twitter-profile > iframe {
+	position:inherit;
+}
 .media_embed.twitter-status {
 	border-bottom: none;
 }
