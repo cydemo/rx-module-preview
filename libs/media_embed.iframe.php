@@ -14,7 +14,7 @@ $type = Context::get('type');
 $data = Context::get('data');
 
 
-$result = '<div class="preview_iframe_wrapper" contenteditable="false">';
+$result = '<!DOCTYPE html><html lang="ko"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
 
 // style
 $style_tmp = "";
@@ -88,6 +88,8 @@ else if ( $service === 'ms_office' )
 
 $style = '<style>' . $style_tmp . $style_def . '</style>';
 $result .= $style;
+
+$result .= '</head><body><div class="preview_iframe_wrapper" contenteditable="false">';
 
 
 // html
@@ -272,14 +274,14 @@ else if ( $service === 'kakao_map' )
 			});
 	</script>";
 }
-else if ( $service === 'pdf' || $service === 'ms_office' )
+else if ( $service === 'ms_office' || $service === 'pdf' )
 {
 	$file_srl = $data;
 	$filename = $url;
-	
+
 	$columnList = ['module_srl', 'file_srl', 'source_filename'];
 	$file_obj = FileModel::getFile($file_srl, $columnList);
-	
+
 	if ( !$file_obj )
 	{
 		throw new Rhymix\Framework\Exceptions\TargetNotFound('msg_file_not_found');
@@ -295,7 +297,18 @@ else if ( $service === 'pdf' || $service === 'ms_office' )
 	$_ext = explode('.', strtolower($filename));
 	$ext = $_ext[count($_ext)-1];
 
-	if ( $service === 'pdf' )
+	if ( $service === 'ms_office' )
+	{
+		$allowed_ext = ['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'];
+		if ( !in_array($ext, $allowed_ext) )
+		{
+			echo 'the file format is not for MS Office';
+			exit;
+		}
+
+		$result .= '<iframe src="//view.officeapps.live.com/op/embed.aspx?src='. rawurlencode($download_url) .'"></iframe>';
+	}
+	else if ( $service === 'pdf' )
 	{
 		if ( $ext !== 'pdf' )
 		{
@@ -325,7 +338,7 @@ else if ( $service === 'pdf' || $service === 'ms_office' )
 							viewport: viewport
 						};
 						page.render(renderContext);
-						
+
 						if (pageNum === 1) {
 							const aspectRatio = viewport.height / viewport.width;
 							container.style.height = (container.clientWidth * aspectRatio) + 'px';
@@ -357,21 +370,130 @@ else if ( $service === 'pdf' || $service === 'ms_office' )
 		</script>";
 		$result .= '<div id="file-container" data-filepath="'. $download_url .'"></div>';
 	}
-	else if ( $service === 'ms_office' )
-	{
-		$allowed_ext = ['doc', 'docx', 'ppt', 'pptx', 'xls', 'xlsx'];
-		if ( !in_array($ext, $allowed_ext) )
-		{
-			echo 'the file format is not for MS Office';
-			exit;
-		}
+}
+else if ( $service === 'nate' )
+{
+	$result .= file_get_contents(RX_BASEDIR . '/modules/preview/libs/src/video_player.html');
 
-		$result .= '<iframe src="//view.officeapps.live.com/op/embed.aspx?src='. rawurlencode($download_url) .'"></iframe>';
+	if ( $type === 'tv' )
+	{
+		$script .= "<script>
+			$(document).ready(function(){
+				const videoPlayer = new VideoPlayer('.preview_iframe_wrapper');
+
+				$.get('/modules/preview/libs/media_embed.cors.php?url=". $url ."', function(response) {
+					const data = JSON.parse($(response).filter('#__NEXT_DATA__').html());
+					const image_url = '". $data ."';
+					const video_info = data.props.pageProps.videoDetailView;
+					const video_title = video_info.clipTitle;
+					const video_url = video_info.smcUriList.pop();
+
+					$('.video-player-title').children('h2').text(video_title);
+					$('.video-player').attr('poster', image_url).attr('src', video_url);
+				});
+			});
+		</script>";
 	}
+	else if ( $type === 'news' )
+	{
+		preg_match('/view\/(\w+)/', $url, $matches);
+		$target_url = 'https://m.news.nate.com/vod/VodPlay?aid=' . $matches[1];
+
+		$script .= "<script>
+			$(document).ready(function(){
+				const videoPlayer = new VideoPlayer('.preview_iframe_wrapper');
+
+				let video_title, image_url, video_url;
+				$.get('/modules/preview/libs/media_embed.cors.php?url=". $target_url ."', function(response) {
+					const data = JSON.parse(response);
+					if ( !data || data.err ) {
+						console.error('Cannot get video url');
+					}
+					image_url = '". $data ."';
+					video_url = data.url;
+
+					const target_url = 'https://m.news.nate.com/view/". $matches[1] ."';
+					$.get('/modules/preview/libs/media_embed.cors.php?url=' + target_url, function(response) {
+						video_title = response.match(/<title>([^<]+)/)[1];
+
+						$('.video-player-title').children('h2').text(video_title);
+						$('.video-player').attr('poster', image_url).attr('src', video_url);
+					});
+				});
+			});
+		</script>";
+	}
+}
+else if ( $service === 'popkontv' || $service === 'suno' )
+{
+	$result .= file_get_contents(RX_BASEDIR . '/modules/preview/libs/src/video_player.html');
+
+	$script .= "<script>
+		$(document).ready(function(){
+			const videoPlayer = new VideoPlayer('.preview_iframe_wrapper');
+
+			const data = '". $data ."';
+			const data_info = data.split('|@|');
+			const video_title = data_info[0];
+			const image_url = data_info[1];
+			const video_url = '". $url ."';
+
+			$('.video-player-title').children('h2').text(video_title);
+			$('.video-player').attr('poster', image_url).attr('src', video_url);
+		});
+	</script>";
+}
+else if ( $service === 'spooncast' )
+{
+	$result .= file_get_contents(RX_BASEDIR . '/modules/preview/libs/src/video_player.html');
+
+	$script .= "<script>
+		$(document).ready(function(){
+			const videoPlayer = new VideoPlayer('.preview_iframe_wrapper');
+
+			const type = '". $type ."';
+			const data = '". $data ."';
+			const data_info = data.split('|@|');
+			const video_title = data_info[0];
+			const image_url = data_info[1];
+			const video_url = '". $url ."';
+
+			$('.video-player-title').children('h2').text(video_title);
+			$('.video-player').attr('poster', image_url).attr('src', video_url);
+
+			if ( type === 'live' ) {
+				$.getScript('https://cdn.jsdelivr.net/npm/hls.js@latest', function() {
+					const video = $('#video-player')[0];
+					$('.time-container').find('span').not('.current-time').hide();
+
+					if (Hls.isSupported()) {
+						const hls = new Hls({
+							startPosition: 0,
+						});
+						hls.loadSource(video_url);
+						hls.attachMedia(video);
+
+						hls.on(Hls.Events.ERROR, function(event, response) {
+							console.warn(response.type + ': ' + response.error.message);
+							video.pause();
+							hls.destroy();
+
+							$('.error-message-text').text('라이브가 종료되어 재생할 수 없습니다.');
+							$('.error-message-container').css('display', 'flex');
+						});
+					} else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+						video.addEventListener('loadedmetadata', function() {
+							video.play();
+						});
+					}
+				});
+			}
+		});
+	</script>";
 }
 
 $result .= $script;
 
-$result .= '</div>';
+$result .= '</div></body></html>';
 
 echo $result;

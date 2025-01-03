@@ -65,8 +65,8 @@ class PreviewAdminView extends Preview
 				'items' => (object) [
 					'use_media_embed' => ['Y', 'N'],
 					'media_embed_list' => [
-						'video' => ['bilibili', 'chzzk', 'dailymotion', 'fc2', 'imdb', 'imgur', 'iqiyi', 'kakao', 'ktv', 'mlb', 'naver', 'niconico', 'qq', 'sbs', 'soop', 'streamable', 'ted', 'tudou', 'tv_sohu', 'tvcf', 'vimeo', 'youku', 'youtube'],
-						'audio' => ['amazon_music', 'apple_music', 'apple_podcasts', 'audioclip', 'bandcamp', 'mixcloud', 'naver_vibe', 'soundcloud', 'spotify', 'udio'],
+						'video' => ['bilibili', 'chzzk', 'dailymotion', 'fc2', 'imdb', 'imgur', 'iqiyi', 'kakao', 'ktv', 'mlb', 'nate', 'naver', 'niconico', 'popkontv', 'qq', 'sbs', 'soop', 'streamable', 'ted', 'tudou', 'tv_sohu', 'tvcf', 'vimeo', 'youku', 'youtube'],
+						'audio' => ['amazon_music', 'apple_music', 'apple_podcasts', 'audioclip', 'bandcamp', 'mixcloud', 'naver_vibe', 'soundcloud', 'spooncast', 'spotify', 'suno', 'udio'],
 						'image' => ['azquotes', 'figma', 'flickr', 'getty_images', 'giphy', 'jjalbot', 'tenor'],
 						'social_media' => ['airbnb', 'discord', 'facebook', 'instagram', 'pinterest', 'telegram', 'threads', 'tiktok', 'tumblr', 'x'],
 						'web_page' => ['codepen', 'codesandbox', 'github', 'google_books', 'google_drive', 'google_forms', 'google_maps', 'internet_archive', 'jsfiddle', 'kakao_map', 'ms_office', 'pdf', 'prezi', 'reddit', 'relive', 'slideshare', 'typeform'],

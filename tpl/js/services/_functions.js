@@ -100,6 +100,8 @@ export async function delContentByInput(editor, paste) {
 
 export async function setPreviewCard(obj) {
 	if ( !use_preview || !isAllowedDomain(obj.paste) ) {
+		const ck_editor = CKEDITOR.instances.editor1;
+		ck_editor.insertHtml(obj.paste);
 		completeMediaEmbed();
 		return false;
 	}
@@ -119,6 +121,8 @@ export async function setPreviewCard(obj) {
 
 export async function setPreviewCardByData(obj) {
 	if ( !use_preview || !isAllowedDomain(obj.paste) ) {
+		const ck_editor = CKEDITOR.instances.editor1;
+		ck_editor.insertHtml(obj.paste);
 		completeMediaEmbed();
 		return false;
 	}
@@ -294,8 +298,11 @@ export function procPreviewImageFileInfo(obj) {
 		}
 		if ( response.file_exists ) {
 			const old_file = response.file_info;
-			const temp_code = 'src="' + old_file.uploaded_filename + '" alt="' + old_file.source_filename + '" data-file-srl="' + old_file.file_srl + '"';
-			obj.html = obj.html.replace(/src="[^"]+"/, temp_code);
+			const image_temp_code = 'img src="' + old_file.uploaded_filename + '" alt="' + old_file.source_filename + '" data-file-srl="' + old_file.file_srl + '"';
+
+			obj.html = obj.html.replace(/img\ssrc="[^"]+"/, image_temp_code);
+			obj.html = obj.html.replace(/(&data=)http[^"]+\.(?:gif|jpe?g|tiff?|png|webp|bmp)/g, '$1' + old_file.uploaded_filename);
+
 			insertPreviewCard(obj);
 			completeMediaEmbed();
 		} else {
@@ -395,7 +402,7 @@ export function procFileUpload(obj) {
 			} else {
 				editor_container.data('instance').loadFilelist(editor_container);
 				const temp_code = 'img src="' + result.download_url + '" alt="' + result.source_filename + '" data-file-srl="' + result.file_srl + '"';
-				obj.html = obj.html.replace(/img\ssrc="[^"]+"/, temp_code);
+				obj.html = obj.html.replace(/img\ssrc="[^"]+"/, temp_code).replace(/(&data=)http[^"]+\.(?:gif|jpe?g|tiff?|png|webp|bmp)/g, '$1' + result.download_url);
 			}
 		},
 		error: function(jqXHR, textStatus) {

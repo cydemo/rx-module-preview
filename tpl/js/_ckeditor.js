@@ -57,11 +57,13 @@ jQuery(document).ready(function($) {
 			mixcloudRegExp: /^https?:\/\/(?:(?:www|m)\.)?mixcloud\.com\/(.+?)\/(.+?)(?:\/)?$/,
 			mlbRegExp: /^https:\/\/(?:www|m)\.mlb\.com\/video\/([-_a-z0-9.]+)(?:\?.+)?$/,
 			msOfficeRegExp: /^<a(?:[^>]+)?data-file-srl="(\d+)"(?:[^>]+)?>(.+\.(pptx?|docx?|xlsx?))<\/a>/,
+			nateRegExp: /^https:\/\/(?:m.)?(tv|news).nate.com\/(clip|view)\/(\w+)[\S]+/,
 			naverRegExp: /^https?:\/\/(?:naver\.me\/[\w]{8}$|(?:(?:(?:m.)?(?:sports|game|entertain)|tv|(?:n.|sports.)?news|media|m).)naver.com\/.+$)/,
 			naverVibeRegExp: /^https?:\/\/vibe\.naver\.com\/(track|album|playlist)\/([\w]+)/,
 			niconicoRegExp: /^https?:\/\/(?:(?:www|sp|(live))\.)?nico(?:video)?\.(?:jp|ms)\/(?:(watch)\/)?(\w{2}\d+)(?:(?:\?from=|\#)([0-9:]+))?/,
 			pdfRegExp: /^<a(?:[^>]+)?data-file-srl="(\d+)"(?:[^>]+)?>(.+\.(pdf))<\/a>/,
 			pinterestRegExp: /^https?:\/\/(?:(?:www\.)?pin\.it\/[\w]+$|(?:\w+\.)?pinterest\.(?:co\.?[a-z]+)\/([_a-z]+)(?:\/(?:([^/?]+))?(?:\/)?)?(?:(?:sent\/)?\?.+)?$)/,
+			popkontvRegExp: /^https?:\/\/(?:www\.)?popkontv\.com\/clip\/(\d+)$/,
 			preziRegExp: /^https?:\/\/prezi\.com\/(?:(v|p|m)\/)?([\w\d:_-]{12})\/([\w\d:_-]+)(?:.+)?/,
 			qqRegExp: /^https?:\/\/(?:m\.)?v\.qq\.com\/(?:x\/(?:m\/)?)?(cover|page|play)(?:.+?(?:(?:cid=)?(\w{15})))?(?:.+?(?:(?:vid=)?(\w{11})))(?:.+?(?:(?:cid=)?(\w{15})))?/,
 			redditRegExp: /^https?:\/\/(?:(?:www|np|www\.np)\.)?reddit\.com\/((?:r|user)\/[^/]+)\/comments\/(\w+)\/(\w+)(?:\/(\w+))?(?:(?:\/|\?)(?:.*)?)?$/,
@@ -70,8 +72,10 @@ jQuery(document).ready(function($) {
 			slideshareRegExp: /^https?:\/\/(?:www\.)?slideshare\.net(?:\/(slideshow))?\/([^\/\?\&]+)\/([\w-]+)(?:\/\?\&\s)?/,
 			soopRegExp: /^https?:\/\/(?:(vod|play|ch)\.)?sooplive\.co\.kr\/(\w+)(?:\/(\d+)(?:\/(catch(?:story)?)(?:\?o=(\d+))?)?)?/,
 			soundcloudRegExp: /^https?:\/\/(?:(?:w|www|on)\.)?(?:soundcloud\.(?:com|app\.goog\.gl)|snd\.sc)\/([\w\-\.]+[^#\s]+)(.*)?(#[\w\-]+)?$/,
+			spooncastRegExp: /^https?:\/\/(?:www.)?spooncast.net\/([a-z]{2})\/(cast|live|profile)\/(@?[\w.-]+)/,
 			spotifyRegExp: /^(spotify|http(?:s)?:\/\/(?:[a-z]+\.)?(?:spotify|spoti)\.(?:com|fi))[\/|:](?:user[\/|:]([a-zA-Z0-9]+)[\/|:])?(track|album|artist|playlist|show|episode)[\/|:]([0-9a-zA-Z]+)((?:\?.+|))/,
 			streamableRegExp: /^https?:\/\/(?:[a-z0-9]+\.)?streamable\.com\/([a-zA-Z0-9_-]+)$/,
+			sunoRegExp: /^https:\/\/suno.com\/song\/(\w{8}-\w{4}-\w{4}-\w{4}-\w{12})$/,
 			tedRegExp: /^https?:\/\/((?:www\.|)ted\.com)\/talks\/([\_\-0-9a-zA-Z]+)/,
 			telegramRegExp: /^https?:\/\/t\.me\/(\w+)\/(\d+)$/,
 			tenorRegExp: /^https:\/\/tenor\.com\/(?:view\/[-a-z]+(\d+)$|([\w]+\.gif))/,
@@ -86,7 +90,7 @@ jQuery(document).ready(function($) {
 			vimeoRegExp: /https?:\/\/(www|player\.)?vimeo.com\/(?:(?:channels|event|ondemand)\/(?:\w+\/)?|(?:album|groups)\/([^\/]*)\/videos\/|video\/|)(\d+)((?:\#t=.+|))(?:|\/\?)/,
 			xRegExp: /^https?:\/\/(?:www\.)?(?:twitter|x)\.com\/(?!explore|login|settings|tos|privacy|search|i\/flow|i\/events|i\/moments)(\w+){1,15}(?:\/(?:(status|lists))?)?(?:\/([0-9a-zA-Z-_]+)(?:\?.+)?)?$/,
 			youkuRegExp: /^https?:\/\/(?:(?:www|v|m).)?youku.com\/(v_show|video)\/id_([^?.]+)/,
-			youtubeRegExp: /^https?:\/\/(?:(?:www|m).)?(?:youtube.com|youtu.be)\/(?:(watch|v|(?:play)?list|embed|shorts|live)[\/|\?])?(?:([\w\-]{11}))?(?:(?:\?)?(\S+))?$/
+			youtubeRegExp: /^https?:\/\/(?:(?:www|m).)?(?:youtube.com|youtu.be)\/(?:(watch|v|(?:play)?list|embed|shorts|live)[\/|\?])?(?:([\w\-]{11}))?(?:(?:\?)?([v|list|si|t]\S+))?$/
 		}
 	}
 

@@ -9,7 +9,7 @@ export async function setGoogleDriveHtml(obj) {
 	}
 
 	try {
-		const { waitMediaEmbed, insertMediaEmbed, completeMediaEmbed } = await import('./_functions.js');
+		const { waitMediaEmbed, procPreviewImageFileInfo } = await import('./_functions.js');
 
 		waitMediaEmbed();
 
@@ -23,15 +23,7 @@ export async function setGoogleDriveHtml(obj) {
 			type = 'embeddedfolderview';
 			iframe_src = `https://drive.google.com/${type}?id=${id}&usp=drive_link`;
 
-			obj.html = `
-				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
-					<div class="${preview.iframe_wrapper} google-drive-embed">
-						<iframe src="${iframe_src}" allowfullscreen="true" frameborder="no" loading="lazy"></iframe>
-					</div>
-				</div>
-			`;
-			insertMediaEmbed(obj);
-			completeMediaEmbed();
+			setGoogleDriveContentWithoutThumbnail(obj, iframe_src);
 		} else {
 			const target_url = obj.matches[0];
 			iframe_src = `https://docs.google.com/${type}/${name}${id}/preview?usp=embed_googleplus`;
@@ -44,46 +36,56 @@ export async function setGoogleDriveHtml(obj) {
 
 				const data = await response.text();
 				if ( !data ) {
-					obj.html = `
-						<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
-							<div class="${preview.iframe_wrapper} google-drive-embed">
-								<iframe src="${iframe_src}" allowfullscreen="true" frameborder="no" loading="lazy"></iframe>
-							</div>
-						</div>
-					`;
-					insertMediaEmbed(obj);
-					completeMediaEmbed();
+					setGoogleDriveContentWithoutThumbnail(obj, iframe_src);
 				}
 
 				const url = $(data).filter('meta[itemprop="embedURL"]').attr('content');
 				iframe_src = url ?? iframe_src;
 
 				let thumb = $(data).filter('meta[property="og:image"]').attr('content') ?? '';
-				thumb = thumb ? `<img src="${thumb}" />` : '';
 
-				obj.html = `
-					<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
-						<div class="${preview.iframe_wrapper} google-drive-embed">
-							${thumb}
-							<iframe src="${iframe_src}" allowfullscreen="true" frameborder="no" loading="lazy"></iframe>
+				if ( thumb ) {
+					obj.data_obj = {
+						inserting_type: 'media_embed',
+						image_url: thumb,
+						mid: window.current_mid,
+						editor_sequence: preview.editor_container.data().editorSequence,
+						allow_chunks: 'Y'
+					};
+
+					thumb = thumb ? `<img src="${thumb}" />` : '';
+
+					obj.html = `
+						<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
+							<div class="${preview.iframe_wrapper} google-drive-embed">
+								${thumb}
+								<iframe src="${iframe_src}" allowfullscreen="true" frameborder="no" loading="lazy"></iframe>
+							</div>
 						</div>
-					</div>
-				`;
-				insertMediaEmbed(obj);
-				completeMediaEmbed();
+					`;
+					procPreviewImageFileInfo(obj);
+				} else {
+					setGoogleDriveContentWithoutThumbnail(obj, iframe_src);
+				}
 			} catch (error) {
-				obj.html = `
-					<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
-						<div class="${preview.iframe_wrapper} google-drive-embed">
-							<iframe src="${iframe_src}" allowfullscreen="true" frameborder="no" loading="lazy"></iframe>
-						</div>
-					</div>
-				`;
-				insertMediaEmbed(obj);
-				completeMediaEmbed();
+				setGoogleDriveContentWithoutThumbnail(obj, iframe_src);
 			}
 		}
 	} catch (error) {
 		console.error('Error importing or executing '+ title +' module:', error);
 	}
 }
+
+	async function setGoogleDriveContentWithoutThumbnail(obj, iframe_src) {
+		const { insertMediaEmbed, completeMediaEmbed } = await import('./_functions.js');
+
+		obj.html = `
+			<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
+				<div class="${preview.iframe_wrapper} google-drive-embed">
+					<iframe src="${iframe_src}" allowfullscreen="true" frameborder="no" loading="lazy"></iframe>
+				</div>
+			</div>
+		`;
+		insertMediaEmbed(obj);
+		completeMediaEmbed();
+	}

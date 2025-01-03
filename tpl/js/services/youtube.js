@@ -81,7 +81,7 @@ export async function setYoutubeHtml(obj) {
 
 			ratio = (data.height / data.width * 100).toFixed(2);
 			if ( type === 'shorts' ) {
-				short_form = ' youtube-shorts';
+				short_form = ' short_form';
 				style = '';
 				thumb = data.thumbnail_url ? data.thumbnail_url.replace('hqdefault', 'maxres2') : '';
 			} else {

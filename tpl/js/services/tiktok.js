@@ -56,7 +56,7 @@ export async function setTiktokHtml(obj) {
 }
 
 	async function setTiktok(obj) {
-		const { setPreviewCard, insertMediaEmbed, completeMediaEmbed } = await import('./_functions.js');
+		const { setPreviewCard, procPreviewImageFileInfo, insertMediaEmbed, completeMediaEmbed } = await import('./_functions.js');
 
 		const name = obj.matches[2];
 		const id = obj.matches[4];
@@ -64,9 +64,14 @@ export async function setTiktokHtml(obj) {
 
 		const target_url = 'https://www.tiktok.com/oembed?url=' + url;
 		let iframe_src = '';
+		if ( id ) {
+			iframe_src = 'https://www.tiktok.com/embed/v2/'+ id +'?lang=ko-KR" name="__tt_embed__v'+ id;
+		} else {
+			iframe_src = 'https://www.tiktok.com/embed/'+ name + '" name="__tt_embed__'+ name;
+		}
 
 		try {
-			const response = await fetch(target_url);
+			let response = await fetch(target_url);
 			if (!response.ok) {
 				throw new Error('Network response was not ok');
 			}
@@ -87,27 +92,94 @@ export async function setTiktokHtml(obj) {
 				setPreviewCard(obj);
 				return false;
 			}
-			const thumb = data.thumbnail_url ? '<img src="'+ data.thumbnail_url +'" />' : '';
-			if ( id ) {
-				iframe_src = 'https://www.tiktok.com/embed/v2/'+ id +'?lang=ko-KR" name="__tt_embed__v'+ id;
-			} else {
-				iframe_src = 'https://www.tiktok.com/embed/'+ name + '" name="__tt_embed__'+ name;
-			}
+			let thumb = data.thumbnail_url ?? '';
 
-			obj.html = `
-				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
-					<div class="${preview.iframe_wrapper} tiktok-embed">
-						${thumb}
-						<iframe src="${iframe_src}" frameborder="0" scrolling="no" loading="lazy" sandbox="allow-popups allow-popups-to-escape-sandbox allow-scripts allow-top-navigation allow-same-origin"></iframe>
+			if ( thumb ) {
+				obj.data_obj = {
+					inserting_type: 'media_embed',
+					image_url: thumb,
+					mid: window.current_mid,
+					editor_sequence: preview.editor_container.data().editorSequence,
+					allow_chunks: 'Y'
+				};
+
+				thumb = '<img src="'+ data.thumbnail_url +'" />';
+
+				obj.html = `
+					<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
+						<div class="${preview.iframe_wrapper} tiktok-embed">
+							${thumb}
+							<iframe src="${iframe_src}" frameborder="0" scrolling="no" loading="lazy" sandbox="allow-popups allow-popups-to-escape-sandbox allow-scripts allow-top-navigation allow-same-origin"></iframe>
+						</div>
 					</div>
-				</div>
-			`;
-			insertMediaEmbed(obj);
-			completeMediaEmbed();
-			obj.e.editor.showNotification(preview.omit_message, 'info', 3000);
+				`;
+
+				procPreviewImageFileInfo(obj);
+				obj.e.editor.showNotification(preview.omit_message, 'info', 3000);
+			} else {
+				try {
+					response = await fetch(preview.cors + encodeURIComponent(obj.paste));
+					if (!response.ok) {
+						console.error('Network response was not ok');
+						setTiktokContentWithoutThumbnail(obj, iframe_src)
+					}
+
+					data = await response.text();
+					if (!data) {
+						console.error('Error: data is empty or wrong');
+						setTiktokContentWithoutThumbnail(obj, iframe_src)
+					}
+
+					const matches = data.match(/"avatarMedium":"([^"]+)"/);
+					if ( !matches ) {
+						console.error('Error: data is empty or wrong');
+						setTiktokContentWithoutThumbnail(obj, iframe_src)
+					}
+					thumb = matches[1].replaceAll('\\u002F', '/');
+
+					obj.data_obj = {
+						inserting_type: 'media_embed',
+						image_url: thumb,
+						mid: window.current_mid,
+						editor_sequence: preview.editor_container.data().editorSequence,
+						allow_chunks: 'Y'
+					};
+
+					thumb = '<img src="'+ thumb +'" />';
+
+					obj.html = `
+						<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
+							<div class="${preview.iframe_wrapper} tiktok-embed">
+								${thumb}
+								<iframe src="${iframe_src}" frameborder="0" scrolling="no" loading="lazy" sandbox="allow-popups allow-popups-to-escape-sandbox allow-scripts allow-top-navigation allow-same-origin"></iframe>
+							</div>
+						</div>
+					`;
+					procPreviewImageFileInfo(obj);
+					obj.e.editor.showNotification(preview.omit_message, 'info', 3000);
+				} catch (error) {
+					console.error('Error fetching data:', error);
+					setTiktokContentWithoutThumbnail(obj, iframe_src)
+				}
+			}
 		} catch (error) {
 			console.error('Error fetching data:', error);
 			setPreviewCard(obj);
 			return false;
 		}
+	}
+
+	async function setTiktokContentWithoutThumbnail(obj, iframe_src) {
+		const { insertMediaEmbed, completeMediaEmbed } = await import('./_functions.js');
+
+		obj.html = `
+			<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
+				<div class="${preview.iframe_wrapper} tiktok-embed">
+					<iframe src="${iframe_src}" frameborder="0" scrolling="no" loading="lazy" sandbox="allow-popups allow-popups-to-escape-sandbox allow-scripts allow-top-navigation allow-same-origin"></iframe>
+				</div>
+			</div>
+		`;
+		insertMediaEmbed(obj);
+		completeMediaEmbed();
+		obj.e.editor.showNotification(preview.omit_message, 'info', 3000);
 	}

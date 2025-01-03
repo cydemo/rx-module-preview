@@ -6,7 +6,7 @@ $(document).ready(function() {
 	var thumb, width, height;
 	var cors = request_uri +'modules/preview/libs/media_embed.cors.php?url=';
 
-	var $self_embed = $('.github-embed, .kakao-map-embed, .pdf-embed, .ms-office-embed');
+	var $self_embed = $('.github-embed, .kakao-map-embed, .ms-office-embed, .nate-embed, .pdf-embed, .popkontv-embed, .spoontv-embed, .suno-embed');
 	if ( $self_embed.length > 0 ) {
 		if ( $self_embed.find('iframe').length > 0 ) {
 			$self_embed.find('iframe').each(function() {
