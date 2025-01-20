@@ -6,7 +6,7 @@ $(document).ready(function() {
 	var thumb, width, height;
 	var cors = request_uri +'modules/preview/libs/media_embed.cors.php?url=';
 
-	var $self_embed = $('.github-embed, .kakao-map-embed, .ms-office-embed, .nate-embed, .pdf-embed, .popkontv-embed, .spoontv-embed, .suno-embed');
+	var $self_embed = $('.github-embed, .kakao-map-embed, .ms-office-embed, .nate-embed, .pdf-embed, .popkontv-embed, .spoon-embed, .suno-embed, .video-embed');
 	if ( $self_embed.length > 0 ) {
 		if ( $self_embed.find('iframe').length > 0 ) {
 			$self_embed.find('iframe').each(function() {
@@ -160,11 +160,31 @@ $(document).ready(function() {
 	});
 });
 
+let current_frame_id = null;
+
 function triggerMessageEvent(e) {
 	var event = {}, data = {}, name, width, height, arr = [], ratio, total;
 	event = e.originalEvent;
 
 	if ( event.origin + '/' === request_uri ) {
+		var $self_embed = $('.nate-embed, .popkontv-embed, .spoon-embed, .suno-embed, .video-embed');
+		if ( $self_embed.length > 0 ) {
+			const { id, action } = event.data;
+			if (action === 'play') {
+				if ( current_frame_id && current_frame_id !== id ) {
+					const target_iframe = $('[data-frame-id="'+ current_frame_id +'"]');
+					if ( target_iframe.length ) {
+						target_iframe[0].contentWindow.postMessage({ action: 'pause' }, '*');
+					}
+				}
+				current_frame_id = id;
+			} else if (action === 'pause') {
+				if ( current_frame_id === id ) {
+					current_frame_id = null;
+				}
+			}
+		}
+
 		var $github = $('.github-embed');
 		if ( $github.length > 0 ) {
 			$github.find('iframe').each(function() {
@@ -179,9 +199,7 @@ function triggerMessageEvent(e) {
 				}
 			});
 		}
-	}
 
-	if ( event.origin + '/' === request_uri ) {
 		var $pdf = $('.pdf-embed');
 		if ( $pdf.length > 0 ) {
 			$pdf.find('iframe').each(function() {
@@ -196,9 +214,22 @@ function triggerMessageEvent(e) {
 				}
 			});
 		}
-	}
 
-	if ( $.inArray(event.origin, ['https://www.facebook.com', 'https://m.facebook.com']) !== -1 ) {
+		var $flickr = $('iframe.flickr-embed-frame');
+		if ( $flickr.length > 0 ) {
+			$flickr.each(function() {
+				if ( this.contentWindow === event.source ) {
+					data = event.data;
+					if ( data.name === 'loaded' && $.inArray(data.data, arr) === -1 ) {
+						arr.push(data.data);
+						ratio = Number(($(this).data('natural-height') / $(this).data('natural-width')).toFixed(4));
+						$(this).attr('data-ratio', ratio);
+						return;
+					}
+				}
+			});
+		}
+	} else if ( $.inArray(event.origin, ['https://www.facebook.com', 'https://m.facebook.com']) !== -1 ) {
 		var $fb = $('.fb-post, .fb-video, .fb-page');
 		if ( $fb.length > 0 ) {
 			$fb.find('iframe').each(function() {
@@ -222,18 +253,6 @@ function triggerMessageEvent(e) {
 				}
 			});
 		}
-	} else if ( event.origin + '/' === request_uri ) {
-		$('iframe.flickr-embed-frame').each(function() {
-			if ( this.contentWindow === event.source ) {
-				data = event.data;
-				if ( data.name === 'loaded' && $.inArray(data.data, arr) === -1 ) {
-					arr.push(data.data);
-					ratio = Number(($(this).data('natural-height') / $(this).data('natural-width')).toFixed(4));
-					$(this).attr('data-ratio', ratio);
-					return;
-				}
-			}
-		});
 	} else if ( event.origin === 'https://imgur.com' ) {
 		data = JSON.parse(event.data);
 		if ( data.message === 'resize_imgur' ) {

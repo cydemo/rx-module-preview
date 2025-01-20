@@ -1,15 +1,19 @@
-<script src="/common/js/jquery-2.2.4.js"></script>
+<script src="/common/js/jquery-3.6.3.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 <link rel="stylesheet" href="/modules/preview/libs/src/css/video_player.css">
 <script src="/modules/preview/libs/src/js/video_player.js"></script>
 
 <section class="video-player-wrapper">
-	<video class="video-player" id="video-player" poster="" src="" preload="none" playsinline tabindex="0"></video>
-	<i class="video-player-loading is-hidden"></i>
-	<div class="video-player-title">
-		<h2></h2>
+	<video class="video-player" id="video-player" data-list-index="" poster="" src="" preload="metadata" playsinline tabindex="0"></video>
+	<div class="video-player-header">
+		<h2></h2><a class="track-opener is-hidden"></a>
 	</div>
-	<div class="video-player-controls">
+	<div class="center-controls">
+		<button class="prev-btn control-btn is-hidden is-disabled"></button>
+		<button class="play-pause-btn center control-btn"></button>
+		<button class="next-btn control-btn is-hidden is-disabled"></button>
+	</div>
+	<div class="video-player-controls out">
 		<div class="progress-section">
 			<div class="progress-bar-wrap">
 				<div class="progress-bar"></div>
@@ -17,7 +21,9 @@
 		</div>
 		<div class="control-panel">
 			<div class="left-controls">
-				<button class="play-pause-btn left control-btn"></button>
+				<div class="control-btns">
+					<button class="play-pause-btn left control-btn"></button>
+				</div>
 				<div class="volume-container">
 					<button class="volume-btn control-btn"></button>
 					<input type="range" class="volume-control" min="0" max="1" step="0.01" value="1" style="background: linear-gradient(to right, rgb(255, 255, 255) 50%, rgb(85, 85, 85) 50%);">
@@ -33,9 +39,8 @@
 			</div>
 		</div>
 	</div>
-	<div class="center-controls">
-		<button class="play-pause-btn center control-btn"></button>
-	</div>
+	<i class="video-player-loading is-hidden"></i>
+	<div class="video-list-container out"><ul></ul></div>
 	<div class="error-message-container">
 		<p class="error-message-text"></p>
 	</div>

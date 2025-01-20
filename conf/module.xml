@@ -13,6 +13,7 @@
 		<action name="procPreviewImageFileInfo" type="controller" />
 		<action name="procPreviewImageTempFileDelete" type="controller" />
 		<action name="procPreviewFileDownload" type="controller" method="GET|POST" />
+		<action name="procPreviewFileThumbnail" type="controller" />
 	</actions>
 	<menus>
 		<menu name="preview" type="all">

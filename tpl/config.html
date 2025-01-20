@@ -47,6 +47,8 @@
 					<li><span>{lang('timeout_metatags')}</span><input type="number" name="timeout[]" value="{$preview_config->timeout[0]}" /><span>{lang('unit_sec')}</span></li>
 					<li><span>{lang('timeout_curl')}</span><input type="number" name="timeout[]" value="{$preview_config->timeout[1]}" /><span>{lang('unit_sec')}</span></li>
 				</ul>
+				<!--@elseif($key === 'image_size_limit')-->
+				<p><input type="number" min="0" name="max_image_width" id="max_image_width" value="{$preview_config->max_image_width}" size="7" style="min-width:80px"> × <input type="number" min="0" name="max_image_height" id="max_image_height" value="{$preview_config->max_image_height}" size="7" style="min-width:80px"><span> px</span></p>
 				<p class="x_help-block">{lang('msg_' . $key)}</p>
 				<!--@elseif($key === 'media_embed_list')-->
 					<!--@foreach($item as $k => $opt)-->

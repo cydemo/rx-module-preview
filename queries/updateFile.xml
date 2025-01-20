@@ -1,0 +1,14 @@
+<query id="updateFile" action="update">
+	<tables>
+		<table name="files" />
+	</tables>
+	<columns>
+		<column name="thumbnail_filename" var="thumbnail_filename" minlength="1" maxlength="250" />
+		<column name="width" var="width" />
+		<column name="height" var="height" />
+		<column name="duration" var="duration" />
+	</columns>
+	<conditions>
+		<condition operation="equal" column="file_srl" var="file_srl" filter="number" notnull="notnull" />
+	</conditions>
+</query>

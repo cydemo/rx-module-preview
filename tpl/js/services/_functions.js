@@ -323,14 +323,17 @@ async function _convertTemptoObj(file_info) {
 	return new File([data], file_info.name, {type: file_info.type});
 }
 
-export async function getFileObjByDataUrl(data_url) {
+export async function getFileObjByDataUrl(data_url, target_srl) {
+	if ( !target_srl ) {
+		target_srl = '';
+	}
 	var arr = data_url.split(','),
 		mime = arr[0].match(/:(.*?);/)[1],
 		bstr = atob(arr[1]),
 		n = bstr.length,
 		u8arr = new Uint8Array(n);
 
-	var file_name = 'image.';
+	var file_name = 'preview_image_' + target_srl + '.';
 	switch ( mime ) {
 		case 'image/gif': file_name += 'gif'; break;
 		case 'image/jpeg': file_name += 'jpg'; break;
@@ -347,82 +350,90 @@ export async function getFileObjByDataUrl(data_url) {
 }
 
 export function procFileUpload(obj) {
-	const event = obj.e;
-	const file_info = obj.new_file;
+	return new Promise((resolve, reject) => {
+		const event = obj.e;
+		const file_info = obj.new_file;
 
-	const editor_sequence = preview.editor.data('editor-sequence');
-	const editor_target = preview.editor.data('editor-primary-key-name');
-	const upload_target_srl = $('[name="'+ editor_target +'"]').val();
-	const editor_container = preview.editor_container;
+		const editor_sequence = preview.editor.data('editor-sequence');
+		const editor_target = preview.editor.data('editor-primary-key-name');
+		const upload_target_srl = $('[name="'+ editor_target +'"]').val();
+		const editor_container = preview.editor_container;
 
-	const form_data = new FormData;
-		form_data.append('act', 'procFileUpload');
-		form_data.append('mid', current_mid);
-		form_data.append('editor_sequence', editor_sequence);
-		form_data.append('editor_target', editor_target);
-		form_data.append('upload_target_srl', upload_target_srl);
-		form_data.append('Filedata', obj.fileData);
+		const form_data = new FormData;
+			form_data.append('act', 'procFileUpload');
+			form_data.append('mid', current_mid);
+			form_data.append('editor_sequence', editor_sequence);
+			form_data.append('editor_target', editor_target);
+			form_data.append('upload_target_srl', upload_target_srl);
+			form_data.append('Filedata', obj.fileData);
 
-	let notification = event.editor.showNotification('파일 업로드 중...', 'progress', 0);
+		let notification = event.editor.showNotification('파일 업로드 중...', 'progress', 0);
 
-	$.ajax({
-		url: '/',
-		type: 'post',
-		cache: false,
-		contentType: false,
-		processData: false,
-		dataType: 'json',
-		data: form_data,
-		async: true,
-		xhr: function() {
-			let xhr = $.ajaxSettings.xhr();
-			xhr.upload.onprogress = function(e){
-				const per = e.loaded / e.total;
-				if ( per !== 1 ) {
+		$.ajax({
+			url: '/',
+			type: 'post',
+			cache: false,
+			contentType: false,
+			processData: false,
+			dataType: 'json',
+			data: form_data,
+			async: true,
+			xhr: function() {
+				let xhr = $.ajaxSettings.xhr();
+				xhr.upload.onprogress = function(e){
+					const per = e.loaded / e.total;
+					if ( per !== 1 ) {
+						notification.update({
+							progress: per
+						});
+					} else {
+						notification.update({
+							type: 'success',
+							message: '파일 업로드 완료',
+							duration: 1000
+						});
+					}
+				};
+				return xhr;
+			},
+			success: function(result) {
+				if ( !result ) {
 					notification.update({
-						progress: per
-					});
-				} else {
-					notification.update({
-						type: 'success',
-						message: '파일 업로드 완료',
+						type: 'info',
+						message: '파일 가져오기 실패',
 						duration: 1000
 					});
+					reject(new Error('파일 업로드 결과가 없습니다.'));
+				} else {
+					if ( file_info.inserting_type !== 'thumbnail' ) {
+						editor_container.data('instance').loadFilelist(editor_container);
+						const temp_code = 'img src="' + result.download_url + '" alt="' + result.source_filename + '" data-file-srl="' + result.file_srl + '"';
+						obj.html = obj.html.replace(/img\ssrc="[^"]+"/, temp_code).replace(/(&data=)http[^"]+\.(?:gif|jpe?g|tiff?|png|webp|bmp)/g, '$1' + result.download_url);
+					}
+					resolve(result);
 				}
-			};
-			return xhr;
-		},
-		success: function(result) {
-			if ( !result ) {
+			},
+			error: function(jqXHR, textStatus) {
 				notification.update({
 					type: 'info',
 					message: '파일 가져오기 실패',
 					duration: 1000
 				});
-			} else {
-				editor_container.data('instance').loadFilelist(editor_container);
-				const temp_code = 'img src="' + result.download_url + '" alt="' + result.source_filename + '" data-file-srl="' + result.file_srl + '"';
-				obj.html = obj.html.replace(/img\ssrc="[^"]+"/, temp_code).replace(/(&data=)http[^"]+\.(?:gif|jpe?g|tiff?|png|webp|bmp)/g, '$1' + result.download_url);
+				dispErrorMessage(jqXHR, textStatus);
+				reject(new Error('파일 업로드 실패: ' + textStatus));
+			},
+			complete: function() {
+				if ( file_info.inserting_type === 'preview_card' ) {
+					insertPreviewCard(obj);
+					completeMediaEmbed();
+				} else if ( file_info.inserting_type === 'media_embed' ) {
+					insertMediaEmbed(obj);
+					completeMediaEmbed();
+				}
+				exec_json('preview.procPreviewImageTempFileDelete', {temp_path: file_info.tmp_name});
+				return false;
 			}
-		},
-		error: function(jqXHR, textStatus) {
-			notification.update({
-				type: 'info',
-				message: '파일 가져오기 실패',
-				duration: 1000
-			});
-			dispErrorMessage(jqXHR, textStatus);
-		},
-		complete: function() {
-			if ( file_info.inserting_type === 'preview_card' ) {
-				insertPreviewCard(obj);
-			} else if ( file_info.inserting_type === 'media_embed' ) {
-				insertMediaEmbed(obj);
-			}
-			completeMediaEmbed();
-			exec_json('preview.procPreviewImageTempFileDelete', {temp_path: file_info.tmp_name});
-			return false;
-		}
+		});
 	});
 }
 

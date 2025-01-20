@@ -20,8 +20,32 @@ export async function setPdfHtml(obj) {
 		const target_url = '/modules/preview/libs/media_embed.iframe.php' +
 			'?service=' + obj.service + '&type=' + type + '&url=' + filename + '&data=' + id;
 		const iframe_src = target_url;
+		
+		let thumb = '';
 
 		try {
+			const file_info = preview.editor_container.data().files[id];
+			if ( file_info.mime_type !== 'application/pdf' ) {
+				completeMediaEmbed();
+				console.error('Error: The file is not suitable');
+				return false;
+			}
+
+			if ( file_info.thumbnail_filename ) {
+				thumb = `<img src="${file_info.thumbnail_filename}" />`;
+				obj.html = `
+					<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false" data-file-srl="${id}">
+						<div class="${preview.iframe_wrapper} pdf-embed">
+							${thumb}
+							<iframe src="${iframe_src}" data-src="${iframe_src}" allowfullscreen="true" frameborder="no" scrolling="no" loading="lazy"></iframe>
+						</div>
+					</div>
+				`;
+				insertMediaEmbed(obj);
+				completeMediaEmbed();
+				return false;
+			}
+
 			const response = await fetch(target_url);
 			if (!response.ok) {
 				throw new Error('Network response was not ok');
@@ -50,25 +74,53 @@ export async function setPdfHtml(obj) {
 							viewport: viewport
 						};
 						page.render(renderContext).promise.then(async function() {
-							const thumbnailData = canvas.toDataURL('image/jpeg');
-							const thumb = '<img src="'+ thumbnailData +'" >';
-
-							obj.fileData =  await getFileObjByDataUrl(thumbnailData);
+							const thumbnail_data = canvas.toDataURL('image/jpeg');
+							obj.fileData =  await getFileObjByDataUrl(thumbnail_data, id);
 							obj.new_file = {
-								inserting_type: 'media_embed'
+								inserting_type: 'thumbnail'
 							}
 
-							obj.html = `
-								<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
-									<div class="${preview.iframe_wrapper} pdf-embed">
-										${thumb}
-										<iframe src="${iframe_src}" data-src="${iframe_src}" allowfullscreen="true" frameborder="no" scrolling="no" loading="lazy"></iframe>
-									</div>
-								</div>
-							`;
+							const result = await procFileUpload(obj);
+							const pdf_srl = Number(result.source_filename.replace(/[^0-9]+/g, ''));
+							const thumbnail_filename = '.' + result.download_url;
 
-							procFileUpload(obj);
-							obj.e.editor.showNotification(preview.omit_message, 'info', 3000);
+							file_info.thumbnail_filename = thumbnail_filename;
+							preview.editor_container.data().files[id].thumbnail_filename = thumbnail_filename;
+
+							exec_json('preview.procPreviewFileThumbnail', file_info, function(response) {
+								const editor_container = preview.editor_container;
+								const pdf_el = editor_container.find('.xefu-file[data-file-srl="'+ id +'"]');
+								const pdf_name = pdf_el.find('.xefu-file-name').text();
+								const pdf_size = pdf_el.find('.xefu-file-info').text();
+								const pdf_el_with_thumb = `<li class="xefu-file xefu-file-image un-selected" data-file-srl="${id}" style="cursor: pointer;">
+									<strong class="xefu-file-name">${pdf_name}</strong>
+									<span class="xefu-file-info">
+										<span class="xefu-file-size">${pdf_size}</span>
+										<span>
+											<span class="xefu-thumbnail" style="background-image:url(${thumbnail_filename})" title="${pdf_name}"></span>
+										</span>
+										<span><input type="checkbox" data-file-srl="${id}"></span>
+										<button class="xefu-act-set-cover" data-file-srl="${id}" title="Set as cover image"><i class="xi-check-circle"></i></button>
+									</span>
+								</li>`;
+
+								pdf_el.remove();
+								editor_container.find('.xefu-list-images ul').append(pdf_el_with_thumb);
+
+								thumb = `<img src="${response.thumbnail_filename}" />`;
+								obj.html = `
+									<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false" data-file-srl="${id}">
+										<div class="${preview.iframe_wrapper} pdf-embed">
+											${thumb}
+											<iframe src="${iframe_src}" data-src="${iframe_src}" allowfullscreen="true" frameborder="no" scrolling="no" loading="lazy"></iframe>
+										</div>
+									</div>
+								`;
+								insertMediaEmbed(obj);
+								completeMediaEmbed();
+								obj.e.editor.showNotification(preview.omit_message, 'info', 3000);
+							});
+
 						});
 					});
 				});
@@ -76,7 +128,7 @@ export async function setPdfHtml(obj) {
 				console.error('Error loading thumbnail');
 
 				obj.html = `
-					<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
+					<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false" data-file-srl="${id}">
 						<div class="${preview.iframe_wrapper} pdf-embed">
 							<iframe src="${iframe_src}" data-src="${iframe_src}" allowfullscreen="true" frameborder="no" scrolling="no" loading="lazy"></iframe>
 						</div>

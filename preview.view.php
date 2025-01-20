@@ -31,8 +31,22 @@ class PreviewView extends Preview
 			return;
 		}
 
-		$preview_info = PreviewModel::getPreviewInfo($url);
+		$flag = false;
+		$links = [
+			'naver.me', 'cafe.naver.com/ca-fe/town-talks', 'ogqmarket.naver.com/creators', 'dict.naver.com', 'map.naver.com', 'game.naver.com', 'movie.naver.com', 'jr.naver.com',
+			'finance.daum.net', 'dic.daum.net', 'wordbook.daum.net', 'melon.com/artist', 'webtoon.kakao.com',
+			'namu.wiki', 'fmkorea.com', 'soccerline.kr', 'coupang.com', '.tistory.com', '.gettyimages.com', '.aliexpress.com'
+		];
+		foreach ( $links as $link )
+		{
+			if ( strpos($url, $link) !== false )
+			{
+				$flag = true;
+				break;
+			}
+		}
 
+		$preview_info = PreviewModel::getPreviewInfo($url);
 		Context::set('preview_info', $preview_info);
 	}
 
@@ -125,10 +139,14 @@ class PreviewView extends Preview
 				$oDocument = DocumentModel::getDocument($document_srl);
 				if ( $oDocument->isExists() )
 				{
+					$config = $this->getConfig();
+					$width = is_numeric($config->max_image_width) ? intval($config->max_image_width) : 160;
+					$height = is_numeric($config->max_image_height) ? intval($config->max_image_height) : 160;
+
 					$preview_info->title = $oDocument->getTitle();
 					$preview_info->description = $oDocument->getContentText(200);
 					$preview_info->author = $oDocument->getNickName();
-					$preview_info->image = $oDocument->thumbnailExists() ? $oDocument->getThumbnail(360, 120) : $default_image;
+					$preview_info->image = $oDocument->thumbnailExists() ? $oDocument->getThumbnail($width, $height, 'fill') : $default_image;
 				}
 			}
 			else

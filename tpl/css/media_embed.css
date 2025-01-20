@@ -100,9 +100,6 @@
 .media_embed.ms-office-embed {
 	padding-bottom: calc(56.25% + 23px);
 }
-.media_embed.ms-office-embed img {
-	aspect-ratio: 16 / 9; object-fit: scale-down;
-}
 
 .media_embed.flickr-embed {
 	height: auto; padding-bottom: 0; text-align: center;
@@ -326,10 +323,10 @@
 	opacity: 0;
 }
 
-.media_embed.spooncast-embed {
+.media_embed.spoon-embed {
 	padding-bottom: 100% !important;
 }
-.media_embed.spooncast-embed img {
+.media_embed.spoon-embed img {
 	width: 100% !important; height: auto !important;
 }
 

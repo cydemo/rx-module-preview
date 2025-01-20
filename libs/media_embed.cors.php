@@ -37,6 +37,26 @@ if ( $is_allowed )
 		echo $lastUrl;
 		exit;
 	}
+	else if ( $format === 'pdf' )
+	{
+	    $ch = curl_init();
+		curl_setopt($ch, CURLOPT_URL, $url);
+		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+		curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 10);
+
+		header('Content-type: application/pdf');
+		$response = curl_exec($ch);
+		curl_close($ch);
+
+		if($e = curl_error($ch)) {
+			echo $e;
+		} else {
+			echo $response;
+		}
+		exit;
+	}
 	else if ( $format === 'post' )
 	{
 	    $ch = curl_init();
@@ -104,7 +124,16 @@ else
 	$result = '서버 설정에 의해 프록시 접근이 불가능합니다';
 }
 
-echo $result;
+$encode = array('ASCII', 'UTF-8', 'EUC-KR');
+$result_encode = mb_detect_encoding($result, $encode);
+if ( strtoupper($result_encode) == 'EUC-KR' )
+{
+	echo iconv("EUC-KR", "UTF-8", $result);
+}
+else
+{
+	echo $result;
+}
 exit;
 
 ?>

@@ -35,7 +35,7 @@ export async function setPopkontvHtml(obj) {
 				<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
 					<div class="${preview.iframe_wrapper} popkontv-embed short_form">
 						${thumb}
-						<iframe src="${iframe_src}" data-src="${iframe_src}" allowfullscreen="true" frameborder="no" scroling="no" loading="lazy"></iframe>
+						<iframe src="${iframe_src}" data-frame-id="popkontv-${Date.now()}" data-src="${iframe_src}" allowfullscreen="true" frameborder="no" scroling="no" loading="lazy"></iframe>
 					</div>
 				</div>`;
 			insertMediaEmbed(obj);

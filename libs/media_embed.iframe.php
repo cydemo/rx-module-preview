@@ -12,7 +12,7 @@ $service = Context::get('service');
 $url = Context::get('url');
 $type = Context::get('type');
 $data = Context::get('data');
-
+$list_id = Context::get('list_id');
 
 $result = '<!DOCTYPE html><html lang="ko"><head><meta http-equiv="Content-Type" content="text/html; charset=utf-8">';
 
@@ -20,7 +20,7 @@ $result = '<!DOCTYPE html><html lang="ko"><head><meta http-equiv="Content-Type" 
 $style_tmp = "";
 $style_def = "
 	body {
-		position: relative; margin: 0; width: 100%; height: fit-content;
+		position: relative; margin: 0; width: 100%; height: 100vh; overflow: hidden;
 	}
 ";
 if ( $service === 'github' )
@@ -49,6 +49,9 @@ if ( $service === 'github' )
 else if ( $service === 'kakao_map' )
 {
 	$style_def .= "
+		.preview_iframe_wrapper {
+			height: 100vh;
+		}
 		.map_label {
 			position: relative; width: 150px; height: 27px; font-size: 12px; text-align: center;
 		}
@@ -80,6 +83,9 @@ else if ( $service === 'pdf' )
 else if ( $service === 'ms_office' )
 {
 	$style_def .= "
+		.preview_iframe_wrapper {
+			height: 100vh;
+		}
 		iframe {
 			width: 100%; height: 100%; border: 0; box-sizing: border-box;
 		}
@@ -388,7 +394,7 @@ else if ( $service === 'nate' )
 					const video_title = video_info.clipTitle;
 					const video_url = video_info.smcUriList.pop();
 
-					$('.video-player-title').children('h2').text(video_title);
+					$('.video-player-header').children('h2').text(video_title);
 					$('.video-player').attr('poster', image_url).attr('src', video_url);
 				});
 			});
@@ -400,7 +406,7 @@ else if ( $service === 'nate' )
 		$target_url = 'https://m.news.nate.com/vod/VodPlay?aid=' . $matches[1];
 
 		$script .= "<script>
-			$(document).ready(function(){
+			$(document).ready(function() {
 				const videoPlayer = new VideoPlayer('.preview_iframe_wrapper');
 
 				let video_title, image_url, video_url;
@@ -416,7 +422,7 @@ else if ( $service === 'nate' )
 					$.get('/modules/preview/libs/media_embed.cors.php?url=' + target_url, function(response) {
 						video_title = response.match(/<title>([^<]+)/)[1];
 
-						$('.video-player-title').children('h2').text(video_title);
+						$('.video-player-header').children('h2').text(video_title);
 						$('.video-player').attr('poster', image_url).attr('src', video_url);
 					});
 				});
@@ -429,7 +435,7 @@ else if ( $service === 'popkontv' || $service === 'suno' )
 	$result .= file_get_contents(RX_BASEDIR . '/modules/preview/libs/src/video_player.html');
 
 	$script .= "<script>
-		$(document).ready(function(){
+		$(document).ready(function() {
 			const videoPlayer = new VideoPlayer('.preview_iframe_wrapper');
 
 			const data = '". $data ."';
@@ -438,55 +444,250 @@ else if ( $service === 'popkontv' || $service === 'suno' )
 			const image_url = data_info[1];
 			const video_url = '". $url ."';
 
-			$('.video-player-title').children('h2').text(video_title);
+			$('.video-player-header').children('h2').text(video_title);
 			$('.video-player').attr('poster', image_url).attr('src', video_url);
 		});
 	</script>";
 }
-else if ( $service === 'spooncast' )
+else if ( $service === 'spoon' )
 {
 	$result .= file_get_contents(RX_BASEDIR . '/modules/preview/libs/src/video_player.html');
 
 	$script .= "<script>
-		$(document).ready(function(){
+		$(document).ready(function() {
 			const videoPlayer = new VideoPlayer('.preview_iframe_wrapper');
 
+			let video_url = '". $url ."';
+			let data = '". $data ."';
 			const type = '". $type ."';
-			const data = '". $data ."';
 			const data_info = data.split('|@|');
-			const video_title = data_info[0];
-			const image_url = data_info[1];
-			const video_url = '". $url ."';
+			let video_title = data_info[0];
+			let image_url = data_info[1];
 
-			$('.video-player-title').children('h2').text(video_title);
-			$('.video-player').attr('poster', image_url).attr('src', video_url);
+			$('.video-player-header').children('h2').text(video_title);
 
-			if ( type === 'live' ) {
-				$.getScript('https://cdn.jsdelivr.net/npm/hls.js@latest', function() {
-					const video = $('#video-player')[0];
-					$('.time-container').find('span').not('.current-time').hide();
+			if ( type === 'cast' || type === 'playlist' ) {
+				$('.video-player').attr('poster', image_url).attr('src', video_url);
 
-					if (Hls.isSupported()) {
-						const hls = new Hls({
-							startPosition: 0,
-						});
-						hls.loadSource(video_url);
-						hls.attachMedia(video);
+				if ( type === 'playlist' ) {
+					const list_id = '". $list_id ."';
+					const target_url = 'https://kr-api.spooncast.net/storages/' + list_id + '/casts/';
 
-						hls.on(Hls.Events.ERROR, function(event, response) {
-							console.warn(response.type + ': ' + response.error.message);
-							video.pause();
-							hls.destroy();
+					setVideoList(target_url);
+				}
+			} else if ( type === 'live' ) {
+				const messages = getMessages();
 
-							$('.error-message-text').text('라이브가 종료되어 재생할 수 없습니다.');
-							$('.error-message-container').css('display', 'flex');
-						});
-					} else if (video.canPlayType('application/vnd.apple.mpegurl')) {
-						video.addEventListener('loadedmetadata', function() {
-							video.play();
-						});
+				$.getJSON(video_url).done(function(response) {
+					if ( !response || response.detail !== 'Success' ) {
+						$('.error-message-text').html(messages['live_network_' + response.error.code]);
+						$('.error-message-container').css('display', 'flex');
+						return false;
 					}
+					data = response.results[0];
+
+					if ( data.current_live_id ) {
+						const target_url = 'https://kr-api.spooncast.net/lives/' + data.current_live_id + '/';
+
+						$.getJSON(target_url).done(function(response) {
+							if ( !response || response.detail !== 'Success' ) {
+								$('.error-message-text').html(messages['live_network_' + response.error.code]);
+								$('.error-message-container').css('display', 'flex');
+								return false;
+							}
+							data = response.results[0];
+
+							if ( !data.room_token ) {
+								const video = $('#video-player')[0];
+									video_title = data.title;
+									video_url = data.url_hls.replace('http://', 'https://');
+									image_url = data.img_url.replace('http://', 'https://');
+
+								$('.video-player-header').children('h2').text(video_title);
+								$('.video-player').attr('poster', image_url).attr('src', video_url);
+								$('.time-container').find('span').not('.current-time').hide();
+
+								$.getScript('https://cdn.jsdelivr.net/npm/hls.js@latest', function() {
+									if (Hls.isSupported()) {
+										const hls = new Hls({
+											startPosition: 0,
+										});
+										hls.loadSource(video_url);
+										hls.attachMedia(video);
+
+										hls.on(Hls.Events.ERROR, function(event, response) {
+											console.warn(response.type + ': ' + response.error.message);
+											video.pause();
+											hls.destroy();
+
+											$('.error-message-text').html(messages.live_network_30012);
+											$('.error-message-container').css('display', 'flex');
+										});
+									} else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+										video.addEventListener('loadedmetadata', function() {
+											video.play();
+										});
+									}
+								});
+							} else {
+								$('.error-message-text').html(messages.live_network_30010);
+								$('.error-message-container').css('display', 'flex');
+								return false;
+							}
+						}).fail(function(error) {
+							const response = error.responseJSON;
+							$('.error-message-text').html(messages['live_network_' + response.error.code]);
+							$('.error-message-container').css('display', 'flex');
+							return false;
+						});
+					} else {
+						$('.error-message-text').html(messages.live_network_30004);
+						$('.error-message-container').css('display', 'flex');
+						return false;
+					}
+				}).fail(function(error) {
+					const response = error.responseJSON;
+					$('.error-message-text').html(messages['live_network_' + response.error.code]);
+					$('.error-message-container').css('display', 'flex');
+					return false;
 				});
+			}
+
+			function setVideoList(url, total) {
+				$.getJSON(url).done(function(response) {
+					if ( !response || response.detail !== 'Success' ) {
+						console.warn('비디오 소스를 로드할 수 없습니다.');
+						$('.error-message-text').html('오류가 발생하여 재생할 수 없습니다.');
+						$('.error-message-container').css('display', 'flex');
+						return false;
+					}
+
+					if ( !total ) {
+						total = 0;
+					}
+
+					const video_list = [];
+					for ( let i = total; i < response.results.length + total; i++ ) {
+						let result = response.results[i - total];
+
+						if ( i + total === 0 ) {
+							$('.video-player-header').children('h2').text(result.title);
+							$('.video-player').attr('poster', result.img_url.replace(/^https?:\/\//, 'https://')).attr('src', result.voice_url.replace(/^https?:\/\//, 'https://'));
+						}
+
+						video_list[i - total] = {
+							id: result.id,
+							title: result.title,
+							artist: result.author.nickname,
+							src: result.voice_url.replace(/^https?:\/\//, 'https://'),
+							artwork: [
+								{
+									src: result.img_url.replace(/^https?:\/\//, 'https://'),
+									sizes: '512x512',
+									type: 'image/' + result.img_url.match(/\.(\w+$)/)[1]
+								}
+							],
+							duration: result.duration
+						};
+					};
+
+					total += response.results.length;
+					videoPlayer.videoList.push(...video_list);
+
+					$('.video-player-header').children('.track-opener').text('(1/' + total + ')');
+					$('.prev-btn, .next-btn').removeClass('is-hidden');
+					if ( response.next ) {
+						setVideoList(response.next, total);
+					}
+				}).fail(function() {
+					console.warn('비디오 소스를 로드할 수 없습니다.');
+					$('.error-message-text').html('오류가 발생하여 재생할 수 없습니다.');
+					$('.error-message-container').css('display', 'flex');
+					return false;
+				});
+			}
+
+			function getMessages() {
+				return {
+					live_network_30001: '라이브를 생성 할 수 있는 권한이 없습니다.',
+					live_network_30002: '만 19세 미만은 성인 라이브를 생성 할 수 없어요.',
+					live_network_30003: '방송 수정은 DJ만 할 수 있습니다.',
+					live_network_30004: '종료된 라이브 방송입니다.',
+					live_network_30005: '진행중인 라이브 방송이 아닙니다.',
+					live_network_30006: '방송에 입장 할 권한이 없습니다.',
+					live_network_30007: 'Staff 계정으로는 후원이 불가능합니다.',
+					live_network_30008: '종료된 라이브 방송입니다.',
+					live_network_30010: '입장 정보가 유효하지 않습니다.',
+					live_network_30012: '일시적인 오류가 발생하였습니다.<br>잠시 후 다시 시도해주세요.',
+					live_network_30013: '허용된 사용 횟수를 초과하였습니다.',
+					live_network_30014: '아이템이 선택되지 않았습니다.',
+					live_network_30015: '일시적인 오류가 발생했습니다.<br>다시 시도해 주세요.',
+					live_network_30016: '아이템이 정상적으로 사용되지 않았나요?<br>자세한 문의는 고객문의로 이용해주세요.',
+					live_network_30017: '더 이상 변경할 수 없습니다.',
+					live_network_30018: '아이템이 정상적으로 사용되지 않았나요?<br>자세한 문의는 고객문의로 이용해주세요.',
+					live_network_30019: '현재 사용할 수 없는 아이템입니다.<br>잠시 후 다시 시도해주세요.',
+					live_network_30028: '허용되지 않은 해시태그 문자가 포함되어 있습니다.'
+				};
+			}
+		});
+	</script>";
+}
+else if ( $service === 'video' )
+{
+	$result .= file_get_contents(RX_BASEDIR . '/modules/preview/libs/src/video_player.html');
+
+	$script .= "<script>
+		$(document).ready(function() {
+			const videoPlayer = new VideoPlayer('.preview_iframe_wrapper');
+			let video_url = '". $url ."';
+
+			const iframes = $(parent.document).find('iframe');
+			let iframe;
+			for ( let i = 0; i < iframes.length; i++ ) {
+				const el = iframes[i];
+				if ( iframes[i].contentWindow !== window ) continue;
+				iframe = iframes[i];
+			};
+
+			let video_list = [];
+			const track_list = iframe.dataset.file_srl.split('|@|');
+
+			for ( let i = 0; i < track_list.length; i++ ) {
+				const video_id = track_list[i];
+				const video_title = iframe.dataset.source_filename.split('|@|')[i].replace(/\.\w+$/, '');
+				const image_url = decodeURIComponent(iframe.dataset.thumbnail_filename.split('|@|')[i]);
+				const mime_type = iframe.dataset.mime_type.split('|@|')[i];
+				const width = iframe.dataset.width.split('|@|')[i];
+				const height = iframe.dataset.height.split('|@|')[i];
+				const duration = iframe.dataset.duration.split('|@|')[i];
+
+				video_url = video_url.replace(/\d+$/, video_id);
+				if ( i === 0 ) {
+					$('.video-player-header').children('h2').text(video_title);
+					$('.video-player').attr('poster', image_url).attr('src', video_url);
+				}
+
+				video_list[i] = {
+					id: video_id,
+					title: video_title,
+					artist: '',
+					src: video_url,
+					artwork: [
+						{
+							src: image_url,
+							sizes: '512x512',
+							type: 'image/' + image_url.match(/\.(\w+$)/)[1]
+						}
+					],
+					duration: duration
+				};
+			};
+
+			if ( track_list.length > 1 ) {
+				videoPlayer.videoList.push(...video_list);
+
+				$('.video-player-header').children('.track-opener').text('(1/' + track_list.length + ')');
+				$('.prev-btn, .next-btn').removeClass('is-hidden');
 			}
 		});
 	</script>";

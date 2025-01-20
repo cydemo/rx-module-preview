@@ -72,7 +72,7 @@ jQuery(document).ready(function($) {
 			slideshareRegExp: /^https?:\/\/(?:www\.)?slideshare\.net(?:\/(slideshow))?\/([^\/\?\&]+)\/([\w-]+)(?:\/\?\&\s)?/,
 			soopRegExp: /^https?:\/\/(?:(vod|play|ch)\.)?sooplive\.co\.kr\/(\w+)(?:\/(\d+)(?:\/(catch(?:story)?)(?:\?o=(\d+))?)?)?/,
 			soundcloudRegExp: /^https?:\/\/(?:(?:w|www|on)\.)?(?:soundcloud\.(?:com|app\.goog\.gl)|snd\.sc)\/([\w\-\.]+[^#\s]+)(.*)?(#[\w\-]+)?$/,
-			spooncastRegExp: /^https?:\/\/(?:www.)?spooncast.net\/([a-z]{2})\/(cast|live|profile)\/(@?[\w.-]+)/,
+			spoonRegExp: /^https?:\/\/(?:www.)?spooncast.net\/([a-z]{2})\/(cast|live|playlist|profile)\/(@?[\w.-]+)/,
 			spotifyRegExp: /^(spotify|http(?:s)?:\/\/(?:[a-z]+\.)?(?:spotify|spoti)\.(?:com|fi))[\/|:](?:user[\/|:]([a-zA-Z0-9]+)[\/|:])?(track|album|artist|playlist|show|episode)[\/|:]([0-9a-zA-Z]+)((?:\?.+|))/,
 			streamableRegExp: /^https?:\/\/(?:[a-z0-9]+\.)?streamable\.com\/([a-zA-Z0-9_-]+)$/,
 			sunoRegExp: /^https:\/\/suno.com\/song\/(\w{8}-\w{4}-\w{4}-\w{4}-\w{12})$/,
@@ -87,7 +87,8 @@ jQuery(document).ready(function($) {
 			tvcfRegExp: /^https?:\/\/play\.tvcf\.co\.kr\/([0-9]+)?$/,
 			typeformRegExp: /^https?:\/\/([\w\.-]+)\.typeform\.com\/to\/(\w+)/,
 			udioRegExp: /^https?:\/\/(?:www\.)?udio\.com\/songs\/(\w+)?$/,
-			vimeoRegExp: /https?:\/\/(www|player\.)?vimeo.com\/(?:(?:channels|event|ondemand)\/(?:\w+\/)?|(?:album|groups)\/([^\/]*)\/videos\/|video\/|)(\d+)((?:\#t=.+|))(?:|\/\?)/,
+			videoRegExp: /(?:<p>)?<video src="([^.]+.(?:mp4|webm))"[^>]+(?:poster="([^"]+)"[^>]+)?data-file-srl="(\d+)" \/>(?:<\/p>)?/g,
+			vimeoRegExp: /^https?:\/\/(www|player\.)?vimeo.com\/(?:(?:channels|event|ondemand)\/(?:\w+\/)?|(?:album|groups)\/([^\/]*)\/videos\/|video\/|)(\d+)((?:\#t=.+|))(?:|\/\?)/,
 			xRegExp: /^https?:\/\/(?:www\.)?(?:twitter|x)\.com\/(?!explore|login|settings|tos|privacy|search|i\/flow|i\/events|i\/moments)(\w+){1,15}(?:\/(?:(status|lists))?)?(?:\/([0-9a-zA-Z-_]+)(?:\?.+)?)?$/,
 			youkuRegExp: /^https?:\/\/(?:(?:www|v|m).)?youku.com\/(v_show|video)\/id_([^?.]+)/,
 			youtubeRegExp: /^https?:\/\/(?:(?:www|m).)?(?:youtube.com|youtu.be)\/(?:(watch|v|(?:play)?list|embed|shorts|live)[\/|\?])?(?:([\w\-]{11}))?(?:(?:\?)?([v|list|si|t]\S+))?$/
@@ -137,10 +138,23 @@ jQuery(document).ready(function($) {
 			ck_editor.insertHtml = async function(html) {
 				html = html.replaceAll('%20', ' ');
 
-				if (html.match(preview.reg_exps.pdfRegExp) || html.match(preview.reg_exps.msOfficeRegExp)) {
+				const services_of_insert = ['msOfficeRegExp', 'pdfRegExp', 'videoRegExp'];
+				for (const reg_exp of services_of_insert) {
+					let matches;
+					if ( reg_exp === 'videoRegExp' ) {
+						matches = [...html.matchAll(preview.reg_exps[reg_exp])];
+					} else {
+						matches = html.match(preview.reg_exps[reg_exp]);
+					}
+					if ( !matches || !matches[0] ) {
+						continue;
+					}
+
 					html_inserted = html;
 					html = '';
-				}
+
+					break;
+				};
 
 				await originalInsertHtml.call(this, html);
 			};
@@ -272,26 +286,40 @@ jQuery(document).ready(function($) {
 			}
 
 			let is_embedded = false;
-
 			(async function() {
-				const matches_with_pdf = paste.match(preview.reg_exps.pdfRegExp);
-				const matches_with_office = paste.match(preview.reg_exps.msOfficeRegExp);
-				if ( matches_with_pdf || matches_with_office ) {
+				const services_of_insert = ['ms_office', 'pdf', 'video'];
+				for (const service of services_of_insert) {
+					const reg_exp = service.replace(/_([a-z])/g, function(match, p1) {
+						return p1.toUpperCase();
+					}) + 'RegExp';
+
+					let matches;
+					if ( service === 'video' ) {
+						matches = [...paste.matchAll(preview.reg_exps[reg_exp])];
+					} else {
+						matches = paste.match(preview.reg_exps[reg_exp]);
+					}
+					if ( !matches || !matches[0] ) {
+						continue;
+					}
+
 					is_embedded = true;
 					stopPaste(e, paste);
 
 					try {
 						const { handleEmbedService } = await import(functionScriptURL);
 						const obj = {
-							service: matches_with_pdf ? 'pdf' : 'ms_office',
+							service: service,
 							e: e,
 							paste: paste,
-							matches: matches_with_pdf ?? matches_with_office
+							matches: matches
 						}
 						await handleEmbedService(obj);
 					} catch (error) {
 						console.error('Failed to load or execute handleEmbedService:', error);
 					}
+
+					break;
 				}
 			})();
 
@@ -301,4 +329,260 @@ jQuery(document).ready(function($) {
 		}
 	}
 
+	// 파일 첨부와 함께 본문 삽입이 동시에 이뤄질 때, 비디오 파일들은 모아서 맨 나중에 삽입함
+	const settings = preview.editor_container.data().settings;
+	const originalAdd = settings.add;
+	const originalDone = settings.done;
+	let file_count = 1;
+	let html_for_multiple = '';
+
+    preview.editor_container.fileupload({
+		add: function(e, item) {
+			if (typeof originalAdd === 'function') {
+				originalAdd.call(this, e, item);
+			}
+			file_count = item.originalFiles.length;
+		},
+        done: function(e, res) {
+			const result = res.response().result;
+			if (!result.mime_type.startsWith('video/')) {
+				if (typeof originalDone === 'function') {
+					originalDone.call(this, e, res);
+				}
+				file_count--;
+			} else {
+				const lastUploadTime = Date.now();
+				settings.progressbarGraph.width('100%');
+				settings.progressPercent.text('100%');
+				setTimeout(function() {
+					if (lastUploadTime < Date.now() - 800) {
+						settings.progressbar.slideUp();
+						settings.progressStatus.slideUp();
+					}
+				}, 1000);
+
+				if (!result) {
+					alert(window.xe.msg_file_upload_error + " (Type 4)");
+					return false;
+				}
+				if (!jQuery.isPlainObject(result)) {
+					result = jQuery.parseJSON(result);
+				}
+				if (!result) {
+					alert(window.xe.msg_file_upload_error + " (Type 5)" + "<br>\n" + res.response().result);
+					return false;
+				}
+
+				if (result.error == 0) {
+					let temp_code = '';
+					const filename = String(result.source_filename);
+
+					if (filename.match(/\.(mp4|webm)$/i) && preview.editor_container.data().autoinsertTypes.video) {
+						temp_code = preview.editor_container.data('instance').generateHtml(preview.editor_container, result);
+					}
+
+					if(temp_code !== '') {
+						var textarea = _getCkeContainer(settings.formData.editor_sequence).find('.cke_source');
+						var editor = _getCkeInstance(settings.formData.editor_sequence);
+						if (textarea.length && editor.mode == 'source') {
+							temp_code += "\n";
+						}
+						html_for_multiple += temp_code;
+					}
+
+					if (typeof result.files !== 'undefined') {
+						preview.editor_container.data('editorStatus', result);
+					} else {
+						preview.editor_container.data('editorStatus', null);
+					}
+
+					file_count--;
+
+					if (file_count === 0) {
+						try {
+							if (textarea.length && editor.mode == 'source') {
+								const caretPosition = textarea[0].selectionStart;
+								const currentText = textarea[0].value;
+								textarea.val(currentText.substring(0, caretPosition) + "\n" +
+									html_for_multiple + "\n" +
+									currentText.substring(caretPosition)
+								);
+							} else {
+								editor.insertHtml(html_for_multiple, 'unfiltered_html');
+							}
+							html_for_multiple = '';
+						}
+						catch(err) {
+							// pass
+						}
+					}
+				} else if (result.message) {
+					preview.editor_container.data('editorStatus', null);
+					alert(result.message);
+					return false;
+				} else {
+					preview.editor_container.data('editorStatus', null);
+					alert(window.xe.msg_file_upload_error + " (Type 6)" + "<br>\n" + res.response().result);
+					return false;
+				}
+			}
+        }
+    });
+
+	// 첨부된 파일을 본문에 삽입할 때, 비디오 파일들을 모아서 맨 나중에 삽입함
+	const instance = preview.editor_container.data('instance');
+	const originalInsertToContent = instance.insertToContent;
+	const originalDeleteFile = instance.deleteFile;
+
+	instance.insertToContent = function() {
+		const self = this;
+		const data = preview.editor_container.data();
+		const textarea = _getCkeContainer(data.editorSequence).find('.cke_source');
+		const editor = _getCkeInstance(data.editorSequence);
+		let html_for_multiple = '', html_for_single = '';
+
+		$.each(data.selected_files, function(idx, file) {
+			const file_srl = $(file).data().fileSrl;
+			const result = data.files[file_srl];
+
+			if (result) {
+				if (result.mime_type.startsWith('video/')) {
+					html_for_single = self.generateHtml(preview.editor_container, result);
+					if (textarea.length && editor.mode == 'source') {
+						html_for_single += "\n";
+					}
+					html_for_multiple += html_for_single;
+				} else {
+					try {
+						html_for_single = self.generateHtml(preview.editor_container, result);
+						if (textarea.length && editor.mode == 'source') {
+							const caretPosition = textarea[0].selectionStart;
+							const currentText = textarea[0].value;
+							textarea.val(currentText.substring(0, caretPosition) + "\n" +
+								html_for_single + "\n" +
+								currentText.substring(caretPosition)
+							);
+						} else {
+							editor.insertHtml(html_for_single, 'unfiltered_html');
+						}
+					}
+					catch(err) {
+						// pass
+					}
+				}
+			}
+		});
+
+		if ( html_for_multiple ) {
+			try {
+				if (textarea.length && editor.mode == 'source') {
+					const caretPosition = textarea[0].selectionStart;
+					const currentText = textarea[0].value;
+					textarea.val(currentText.substring(0, caretPosition) + "\n" +
+						html_for_multiple + "\n" +
+						currentText.substring(caretPosition)
+					);
+				} else {
+					editor.insertHtml(html_for_multiple, 'unfiltered_html');
+				}
+			}
+			catch(err) {
+				// pass
+			}
+		}
+
+		//originalInsertToContent.apply(this, arguments);
+	};
+
+	instance.deleteFile = function() {
+		if (typeof originalDeleteFile === 'function') {
+			originalDeleteFile.apply(this, arguments);
+		}
+
+		const data = preview.editor_container.data();
+		const file_srls = [];
+
+		$.each(data.selected_files, function(idx, file) {
+			const file_srl = file.dataset.fileSrl;
+			const file_info = data.files[file_srl];
+			const file_ext = file_info.source_filename.replace(/.+\.(\w+)/, '$1');
+			if ( !file_info.mime_type.startsWith('application/vnd.openxmlformats-officedocument.')
+				&& !file_info.mime_type.startsWith('video/')
+				&& !['application/msword', 'application/vnd.ms-powerpoint', 'application/vnd.ms-excel', 'application/pdf'].includes(file_info.mime_type)
+				&& !/(?:docx?|pptx?|xlsx?|pdf|mp4|webm)/i.test(file_ext) )
+			{
+				return true;
+			}
+			file_srls.push(file_srl);
+		});
+
+		if ( !file_srls.length ) {
+			return;
+		}
+
+		const ckeditor = _getCkeInstance(data.editorSequence);
+		const regexp1 = new RegExp('<p(?:[^>]+)?><a[^>]+data-file-srl="(' + file_srls.join('|') + ')"[^>]+>[^<]+<\/a><\/p>', 'g');
+		const regexp2 = new RegExp('<a[^>]*data-file-srl="(' + file_srls.join('|') + ')"[^>]+>[^<]+<\/a>', 'g');
+
+		const $html = $('<div>' + ckeditor.getData() + '</div>');
+		const target_class = '.ms-office-embed, .pdf-embed, .video-embed';
+		const $media_embed = $html.find(target_class).parent();
+
+		let updated_html = $html.prop('innerHTML');
+		for ( let i = 0; i < $media_embed.length; i++ ) {
+			const target_srls = $media_embed[i].dataset.fileSrl.split(',');
+			const maintained_srls = target_srls.filter(x => !file_srls.includes(x));
+
+			if ( JSON.stringify(maintained_srls) === JSON.stringify(target_srls) ) {
+				continue;
+			} else if ( !maintained_srls.length ) {
+				$html.find(target_class).parent().eq(i).remove();
+				updated_html = $html.prop('innerHTML');
+			} else {
+				const maintained_indices = maintained_srls.map((item) => {
+					return target_srls.indexOf(item);
+				});
+				const target_properties = ['file_srl', 'source_filename', 'thumbnail_filename', 'mime_type', 'width', 'height', 'duration'];
+				const $target_element = $html.find(target_class).parent().eq(i);
+
+				$html.find(target_class).parent().eq(i).attr('data-file-srl', maintained_srls.join(','));
+				for ( let j = 0; j < target_properties.length; j++ ) {
+					const value = target_properties[j];
+					const old_data = $target_element.find('iframe')[0].dataset[value].split('|@|');
+					const new_data = maintained_indices.map((index) => {
+						return old_data[index];
+					}).join('|@|');
+					$html.find(target_class).parent().eq(i).find('iframe').attr('data-' + value, new_data);
+				};
+
+				if ( embed_leave_link ) {
+					const old_hero_info = data.files[target_srls[0]];
+					const old_download_url = request_uri + 'index.php?module=preview&act=procPreviewFileDownload&file_srl=' + old_hero_info.file_srl;
+					const old_title_text = '<a data-file-srl="'+ old_hero_info.file_srl +'" href="'+ old_download_url.replace(/\&/g, '&amp;') +'">'+ old_hero_info.source_filename +'</a>';
+					const old_title_link = embed_link_style ? embed_link_style.replaceAll('%text%', old_title_text) : old_title_text;
+
+					const new_hero_info = data.files[maintained_srls[0]];
+					const new_download_url = request_uri + 'index.php?module=preview&act=procPreviewFileDownload&file_srl=' + new_hero_info.file_srl;
+					const new_title_text = '<a data-file-srl="'+ new_hero_info.file_srl +'" href="'+ new_download_url +'">'+ new_hero_info.source_filename +'</a>';
+					const new_title_link = embed_link_style ? embed_link_style.replaceAll('%text%', new_title_text) : new_title_text;
+
+					if ( embed_link_location <= 1 ) {
+						if ( $target_element.prev().length && $target_element.prev().prop('outerHTML') === old_title_link ) {
+							$html.find(target_class).parent().eq(i).prev().remove();
+							$html.find(target_class).parent().eq(i).before(new_title_link);
+						}
+					} else if ( embed_link_location >= 2 ) {
+						if ( $target_element.next().length && $target_element.next().prop('outerHTML') === old_title_link ) {
+							$html.find(target_class).parent().eq(i).next().remove();
+							$html.find(target_class).parent().eq(i).after(new_title_link);
+						}
+					}
+				}
+
+				updated_html = $html.prop('innerHTML');
+			}
+		};
+
+		ckeditor.setData(updated_html);
+	};
 });

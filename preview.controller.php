@@ -147,6 +147,11 @@ class PreviewController extends Preview
 
 			// 프리뷰 카드 '이미지 파일 첨부 사용 여부' 및 '파일 첨부 예외 도메인'
 			$image_file_upload = ( $config->image_file_upload !== 'N' ) ? 1 : 0;
+			if ( $image_file_upload && $config->max_image_width )
+			{
+				$max_image_width = is_numeric($config->max_image_width) ? intval($config->max_image_width) : 0;
+				$max_image_height = is_numeric($config->max_image_height) ? intval($config->max_image_height) : 0;
+			}
 			$no_attach_domains = '';
 			if ( $config->no_attach_domains )
 			{
@@ -158,6 +163,8 @@ class PreviewController extends Preview
 			$script .= 'var black_or_white = \'' . $domains . '\';';
 			$script .= 'var entered_domains_only = ' . $entered_domains_only . ';';
 			$script .= 'var image_file_upload = ' . $image_file_upload . ';';
+			$script .= 'var max_image_width = ' . $max_image_width . ';';
+			$script .= 'var max_image_height = ' . $max_image_height . ';';
 			$script .= 'var no_attach_domains = \'' . $no_attach_domains . '\';';
 
 			// 프리뷰 카드 스킨의 css 파일을 추가
@@ -304,7 +311,7 @@ class PreviewController extends Preview
 			return;
 		}
 		$inserting_type = Context::get('inserting_type');
-		if ( !$inserting_type || ($inserting_type !== 'preview_card' && $inserting_type !== 'media_embed') )
+		if ( !$inserting_type || !in_array($inserting_type, ['preview_card', 'media_embed', 'thumbnail']) )
 		{
 			return;
 		}
@@ -327,6 +334,12 @@ class PreviewController extends Preview
 			FileHandler::removeFile($temp_path);
 			return;
 		}
+
+		// Fix size of the image
+		$config = $this->getConfig();
+		$width = is_numeric($config->max_image_width) ? intval($config->max_image_width) : 160;
+		$height = is_numeric($config->max_image_height) ? intval($config->max_image_height) : 160;
+		$result = FileHandler::createImageFile($temp_path, $temp_path, $width, $height, 'jpg');
 
 		// Check the current module's attachment size limit.
 		if ( $this->module_srl )
@@ -447,7 +460,10 @@ class PreviewController extends Preview
 		}
 
 		$output_name = $temp_path . '.converted.jpg';
-		$result = FileHandler::createImageFile($temp_path, $output_name, 160, 160, 'jpg');
+		$config = $this->getConfig();
+		$width = is_numeric($config->max_image_width) ? intval($config->max_image_width) : 160;
+		$height = is_numeric($config->max_image_height) ? intval($config->max_image_height) : 160;
+		$result = FileHandler::createImageFile($temp_path, $output_name, $width, $height, 'jpg');
 		if ( $result )
 		{
 			FileHandler::removeFile($temp_path);
@@ -643,5 +659,45 @@ class PreviewController extends Preview
 		}
 
 		exit();
+	}
+
+	function procPreviewFileThumbnail()
+	{
+		$file_srl = Context::get('file_srl');
+		if ( !$file_srl )
+		{
+			throw new Rhymix\Framework\Exceptions\TargetNotFound('msg_file_not_found');
+		}
+
+		$oDB = DB::getInstance();
+		$oDB->begin();
+
+		$args = new stdClass;
+		$args->file_srl = $file_srl;
+		$args->thumbnail_filename = Context::get('thumbnail_filename');
+		$args->width = Context::get('width');
+		$args->height = Context::get('height');
+		$args->duration = Context::get('duration');
+
+		$output = executeQuery('preview.updateFile', $args);
+		if(!$output->toBool())
+		{
+			$oDB->rollback();
+			return $output;
+		}
+
+		$args->uploaded_filename = $args->thumbnail_filename;
+		$output = executeQuery('preview.deleteFile', $args);
+		if(!$output->toBool())
+		{
+			$oDB->rollback();
+			return $output;
+		}
+
+		$this->add('file_srl', (int)$args->file_srl);
+		$this->add('thumbnail_filename', $args->thumbnail_filename);
+
+		$oDB->commit();
+		return new BaseObject();
 	}
 }

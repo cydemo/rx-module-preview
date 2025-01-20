@@ -1,0 +1,8 @@
+<query id="deleteFile" action="delete">
+    <tables>
+        <table name="files" />
+    </tables>
+    <conditions>
+        <condition operation="equal" column="uploaded_filename" var="uploaded_filename" notnull="notnull" />
+    </conditions>
+</query>
