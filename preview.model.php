@@ -739,13 +739,25 @@ class PreviewModel extends Preview
 		}
 	}
 
-	public static function getPreviewJSON($url) {
+	public static function getPreviewJSON($url)
+	{
 		$ch = curl_init();// curl 리소스를 초기화
 		curl_setopt($ch, CURLOPT_URL, $url); // url을 설정
 		curl_setopt($ch, CURLOPT_HEADER, 0); // 헤더는 제외하고 content 만 받음
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1); // 응답 값을 브라우저에 표시하지 말고 값을 리턴
 		$result = curl_exec($ch);
 		curl_close($ch); // 리소스 해제를 위해 세션 연결 닫음
+		return $result;
+	}
+
+	public function getPreviewFileExtraInfo()
+	{
+		$file_srl = Context::get('file_srl');
+		$result = FileModel::getFile($file_srl, ['thumbnail_filename', 'duration', 'comment']);
+		foreach ($result as $key => $val)
+		{
+			$this->add($key, $val);
+		}
 		return $result;
 	}
 }

@@ -6,7 +6,7 @@ $(document).ready(function() {
 	var thumb, width, height;
 	var cors = request_uri +'modules/preview/libs/media_embed.cors.php?url=';
 
-	var $self_embed = $('.github-embed, .kakao-map-embed, .ms-office-embed, .nate-embed, .pdf-embed, .popkontv-embed, .spoon-embed, .suno-embed, .video-embed');
+	var $self_embed = $('.audio-embed, .github-embed, .kakao-map-embed, .ms-office-embed, .nadio-embed, .nate-embed, .pdf-embed, .popkontv-embed, .spoon-embed, .suno-embed, .video-embed');
 	if ( $self_embed.length > 0 ) {
 		if ( $self_embed.find('iframe').length > 0 ) {
 			$self_embed.find('iframe').each(function() {
@@ -167,7 +167,7 @@ function triggerMessageEvent(e) {
 	event = e.originalEvent;
 
 	if ( event.origin + '/' === request_uri ) {
-		var $self_embed = $('.nate-embed, .popkontv-embed, .spoon-embed, .suno-embed, .video-embed');
+		var $self_embed = $('.audio-embed, .nadio-embed, .nate-embed, .popkontv-embed, .spoon-embed, .suno-embed, .video-embed');
 		if ( $self_embed.length > 0 ) {
 			const { id, action } = event.data;
 			if (action === 'play') {

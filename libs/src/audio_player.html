@@ -1,0 +1,47 @@
+<script src="/common/js/jquery-3.6.3.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="/modules/preview/libs/src/css/audio_player.css">
+<script src="/modules/preview/libs/src/js/audio_player.js"></script>
+
+<section class="audio-player-wrapper">
+	<audio class="audio-player" id="audio-player" data-list-index="" src="" preload="metadata" controls playsinline tabindex="0"></audio>
+	<div class="audio-player-header">
+		<h2></h2><a class="track-opener is-hidden"></a>
+	</div>
+	<div class="center-controls">
+		<button class="prev-btn control-btn is-hidden is-disabled"></button>
+		<button class="play-pause-btn center control-btn"></button>
+		<button class="next-btn control-btn is-hidden is-disabled"></button>
+	</div>
+	<div class="audio-player-controls">
+		<div class="progress-section">
+			<div class="progress-bar-wrap">
+				<div class="progress-bar"></div>
+			</div>
+		</div>
+		<div class="control-panel">
+			<div class="left-controls">
+				<div class="control-btns">
+					<button class="play-pause-btn left control-btn"></button>
+				</div>
+				<div class="volume-container">
+					<button class="volume-btn control-btn"></button>
+					<input type="range" class="volume-control" min="0" max="1" step="0.01" value="1" style="background: linear-gradient(to right, rgb(255, 255, 255) 50%, rgb(85, 85, 85) 50%);">
+				</div>
+				<div class="time-container">
+					<span class="current-time">00:00</span>
+					<span class="separator">|</span>
+					<span class="total-time">00:00</span>
+				</div>
+			</div>
+			<div class="right-controls">
+				<button class="fs-btn control-btn"></button>
+			</div>
+		</div>
+	</div>
+	<i class="audio-player-loading is-hidden"></i>
+	<div class="audio-list-container out"><ul></ul></div>
+	<div class="error-message-container">
+		<p class="error-message-text"></p>
+	</div>
+</section>

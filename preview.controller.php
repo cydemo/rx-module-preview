@@ -147,7 +147,7 @@ class PreviewController extends Preview
 
 			// 프리뷰 카드 '이미지 파일 첨부 사용 여부' 및 '파일 첨부 예외 도메인'
 			$image_file_upload = ( $config->image_file_upload !== 'N' ) ? 1 : 0;
-			if ( $image_file_upload && $config->max_image_width )
+			if ( $image_file_upload && isset($config->max_image_width) )
 			{
 				$max_image_width = is_numeric($config->max_image_width) ? intval($config->max_image_width) : 0;
 				$max_image_height = is_numeric($config->max_image_height) ? intval($config->max_image_height) : 0;
@@ -163,8 +163,11 @@ class PreviewController extends Preview
 			$script .= 'var black_or_white = \'' . $domains . '\';';
 			$script .= 'var entered_domains_only = ' . $entered_domains_only . ';';
 			$script .= 'var image_file_upload = ' . $image_file_upload . ';';
-			$script .= 'var max_image_width = ' . $max_image_width . ';';
-			$script .= 'var max_image_height = ' . $max_image_height . ';';
+			if ( isset($max_image_width) && isset($max_image_height) )
+			{
+				$script .= 'var max_image_width = ' . $max_image_width . ';';
+				$script .= 'var max_image_height = ' . $max_image_height . ';';
+			}
 			$script .= 'var no_attach_domains = \'' . $no_attach_domains . '\';';
 
 			// 프리뷰 카드 스킨의 css 파일을 추가
@@ -678,6 +681,7 @@ class PreviewController extends Preview
 		$args->width = Context::get('width');
 		$args->height = Context::get('height');
 		$args->duration = Context::get('duration');
+		$args->comment = Context::get('comment') ? utf8_mbencode(Context::get('comment')) : null;
 
 		$output = executeQuery('preview.updateFile', $args);
 		if(!$output->toBool())
@@ -686,16 +690,19 @@ class PreviewController extends Preview
 			return $output;
 		}
 
-		$args->uploaded_filename = $args->thumbnail_filename;
-		$output = executeQuery('preview.deleteFile', $args);
-		if(!$output->toBool())
+		if ( $args->thumbnail_filename )
 		{
-			$oDB->rollback();
-			return $output;
+			$args->uploaded_filename = $args->thumbnail_filename;
+			$output = executeQuery('preview.deleteFile', $args);
+			if(!$output->toBool())
+			{
+				$oDB->rollback();
+				return $output;
+			}
+			$this->add('thumbnail_filename', $args->thumbnail_filename);
 		}
 
 		$this->add('file_srl', (int)$args->file_srl);
-		$this->add('thumbnail_filename', $args->thumbnail_filename);
 
 		$oDB->commit();
 		return new BaseObject();

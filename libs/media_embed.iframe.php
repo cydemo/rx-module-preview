@@ -23,7 +23,15 @@ $style_def = "
 		position: relative; margin: 0; width: 100%; height: 100vh; overflow: hidden;
 	}
 ";
-if ( $service === 'github' )
+if ( $service === 'audio' || $service === 'video' )
+{
+	$style_def .= "
+		body {
+			background-color: #444;
+		}
+	";
+}
+else if ( $service === 'github' )
 {
 	$style_def .= "
 		.gist .gist-file,
@@ -632,6 +640,152 @@ else if ( $service === 'spoon' )
 		});
 	</script>";
 }
+else if ( $service === 'nadio' )
+{
+	$result .= file_get_contents(RX_BASEDIR . '/modules/preview/libs/src/video_player.html');
+
+	$script .= "<script>
+		$(document).ready(function() {
+			const videoPlayer = new VideoPlayer('.preview_iframe_wrapper');
+
+			let video_url = '". $url ."';
+			const data = '". $data ."';
+			const type = '". $type ."';
+			const data_info = data.split('|@|');
+			const video_title = data_info[0];
+			let image_url = data_info[1];
+			const list_id = '". $list_id ."';
+
+			$('.video-player-header').children('h2').text(video_title.replaceAll('&#039;', '\''));
+			$('.video-player').attr('poster', image_url.replaceAll('&amp;', '&')).attr('src', video_url);
+
+			const target_url = 'https://www.nadio.co.kr/api/series/'+ list_id +'?seriesCategory=original';
+			$.getJSON(target_url).done(function(response) {
+				if ( !response || !response.stories.length || response.stories[0].isFree !== 'Y' ) {
+					console.warn('비디오 소스를 로드할 수 없습니다.');
+					$('.error-message-text').html('오류가 발생하여 재생할 수 없습니다.');
+					$('.error-message-container').css('display', 'flex');
+					return false;
+				}
+				const series = response.detailSeries;
+				const stories = response.stories;
+
+				const video_list = [];
+				let total = 0;
+				for ( let i = 0; i < stories.length; i++ ) {
+					const story = stories[i];
+					if ( story.isFree !== 'Y' ) {
+						continue;
+					}
+					const prefix = 'https://nadio-voicefonts-images.s3.ap-northeast-2.amazonaws.com/';
+					video_url = story.audioSeriesUrl.startsWith('nadio/audios/stories/') ? prefix + story.audioSeriesUrl : story.audioSeriesUrl;
+					image_url = story.storyImageUrl ?? series.imageUrl;
+					image_url = image_url.startsWith('nadio/images/series/') ? prefix + image_url : image_url;
+					const image_url_converted = 'https://www.nadio.co.kr/_next/image?url=' + encodeURIComponent(image_url) + '&w=750&q=100';
+
+					video_list[i] = {
+						id: story.id,
+						title: story.title.replaceAll('&#039;', '\''),
+						artist: series.author.name,
+						src: video_url,
+						artwork: [
+							{
+								src: image_url_converted,
+								sizes: '512x512',
+								type: 'image/' + image_url.match(/\.(\w+$)/)[1]
+							}
+						],
+						duration: story.duration
+					};
+					
+					total++;
+				};
+
+				videoPlayer.videoList.push(...video_list);
+
+				if ( total > 1 ) {
+					$('.video-player-header').children('.track-opener').text('(1/' + total + ')');
+					$('.prev-btn, .next-btn').removeClass('is-hidden');
+				} else {
+					$('.video-player-header').children('.track-opener').remove();
+				}
+			}).fail(function() {
+				console.warn('비디오 소스를 로드할 수 없습니다.');
+				$('.error-message-text').html('오류가 발생하여 재생할 수 없습니다.');
+				$('.error-message-container').css('display', 'flex');
+				return false;
+			});
+		});
+	</script>";
+}
+else if ( $service === 'audio' )
+{
+	$result .= file_get_contents(RX_BASEDIR . '/modules/preview/libs/src/audio_player.html');
+
+	$script .= "<script>
+		$(document).ready(function() {
+			const audioPlayer = new AudioPlayer('.preview_iframe_wrapper');
+			let audio_url = '". $url ."';
+
+			const iframes = $(parent.document).find('iframe');
+			let iframe;
+			for ( let i = 0; i < iframes.length; i++ ) {
+				const el = iframes[i];
+				if ( iframes[i].contentWindow !== window ) continue;
+				iframe = iframes[i];
+			};
+
+			let audio_list = [];
+			const track_list = iframe.dataset.file_srl.split('|@|');
+
+			for ( let i = 0; i < track_list.length; i++ ) {
+				const audio_id = track_list[i];
+				const audio_title = iframe.dataset.title.split('|@|')[i] ?? iframe.dataset.source_filename.split('|@|')[i].replace(/\.\w+$/, '');
+				const image_url = decodeURIComponent(iframe.dataset.thumbnail_filename.split('|@|')[i]);
+				const mime_type = iframe.dataset.mime_type.split('|@|')[i];
+				const artist = iframe.dataset.artist.split('|@|')[i];
+				const album = iframe.dataset.album.split('|@|')[i];
+				const duration = iframe.dataset.duration.split('|@|')[i];
+
+				audio_url = audio_url.replace(/\d+$/, audio_id);
+				if ( i === 0 ) {
+					$('.audio-player-header').children('h2').text(audio_title);
+					if ( image_url !== 'undefined' ) {
+						$('.audio-player-wrapper').css('background-image', 'url(' + image_url + ')');
+					} else {
+						$('.audio-player-wrapper').css('background-image', 'url(./modules/preview/libs/src/img/default_cover_image.jpg)');
+					}
+					$('.audio-player').attr('src', audio_url);
+				}
+
+				audio_list[i] = {
+					id: audio_id,
+					title: audio_title,
+					album: album,
+					artist: artist,
+					src: audio_url,
+					duration: duration
+				};
+				if ( image_url !== 'undefined' ) {
+					audio_list[i].artwork = [
+						{
+							src: image_url,
+							sizes: '512x512',
+							type: 'image/' + image_url.match(/\.(\w+$)/)[1]
+						}
+					];
+				}
+			};
+
+			audioPlayer.audioList.push(...audio_list);
+			if ( track_list.length > 1 ) {
+				$('.audio-player-header').children('.track-opener').text('(1/' + track_list.length + ')');
+				$('.audio-player-header').children('.track-opener').removeClass('is-hidden');
+				$('.prev-btn, .next-btn').removeClass('is-hidden');
+			}
+		});
+	</script>";
+}
 else if ( $service === 'video' )
 {
 	$result .= file_get_contents(RX_BASEDIR . '/modules/preview/libs/src/video_player.html');
@@ -683,9 +837,8 @@ else if ( $service === 'video' )
 				};
 			};
 
+			videoPlayer.videoList.push(...video_list);
 			if ( track_list.length > 1 ) {
-				videoPlayer.videoList.push(...video_list);
-
 				$('.video-player-header').children('.track-opener').text('(1/' + track_list.length + ')');
 				$('.prev-btn, .next-btn').removeClass('is-hidden');
 			}

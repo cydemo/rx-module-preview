@@ -20,10 +20,12 @@ jQuery(document).ready(function($) {
 		editor_container : $('.xefu-container[data-editor-sequence=' + editor.data('editor-sequence') + ']'),
 		embed_service_list : (embed_services ? embed_services.split(',') : null),
 		reg_exps : {
+			'4sharedRegExp': /^https?:\/\/www.4shared.com\/(s\/f|(?:mp3|music|video)\/)([\w]{10})(?:\/[^.]+\.html)?$/,
 			airbnbRegExp: /^https?:\/\/(?:www\.)?airbnb\.(?:[.a-z]+)\/rooms\/(\d+)(?:\?.+)?/,
 			amazonMusicRegExp: /^https?:\/\/music\.amazon\.com\/(tracks|albums|artists|playlists)\/(\w+)(?:[/?].+)?$/,
 			appleMusicRegExp: /^https?:\/\/music\.apple\.com\/((\w{2})\/(?:(album|playlist|music-video|post))\/(?:([^/]+)\/)?(?:\d+\?)?((?:i=|ra.|pl.)?\w+))$/,
 			applePodcastsRegExp: /^https?:\/\/podcasts\.apple\.com\/((\w{2})\/podcast\/([^/]+)\/id(\d+)\?i=(\d+))$/,
+			audioRegExp: /(?:(?:<p>)?<audio[^>]+data-file-srl="(\d+)"(?:[^>]+)?>|^<a(?:[^>]+)?data-file-srl="(\d+)"(?:[^>]+)?>(.+\.(aac|flac|m4a|mp3|ogg|wav))<\/a>)/g,
 			audioclipRegExp: /^https?:\/\/audioclip\.naver\.com\/(channels|audiobooks|curations|lives)\/([\_\-0-9a-zA-Z]+)(?:\/(clips)\/([\_\-0-9a-zA-Z]+))?/,
 			azquotesRegExp: /^https?:\/\/(?:www\.)?azquotes\.com\/quote\/(\d+)/,
 			bandcampRegExp: /^https?:\/\/(?:([\w]+)\.)bandcamp\.com(?:\/(album|track))?(?:\/([-a-z0-9]+))?/,
@@ -57,6 +59,7 @@ jQuery(document).ready(function($) {
 			mixcloudRegExp: /^https?:\/\/(?:(?:www|m)\.)?mixcloud\.com\/(.+?)\/(.+?)(?:\/)?$/,
 			mlbRegExp: /^https:\/\/(?:www|m)\.mlb\.com\/video\/([-_a-z0-9.]+)(?:\?.+)?$/,
 			msOfficeRegExp: /^<a(?:[^>]+)?data-file-srl="(\d+)"(?:[^>]+)?>(.+\.(pptx?|docx?|xlsx?))<\/a>/,
+			nadioRegExp: /^https?:\/\/(?:www.)?nadio.co.kr\/series\/(\d+)\/episodes/,
 			nateRegExp: /^https:\/\/(?:m.)?(tv|news).nate.com\/(clip|view)\/(\w+)[\S]+/,
 			naverRegExp: /^https?:\/\/(?:naver\.me\/[\w]{8}$|(?:(?:(?:m.)?(?:sports|game|entertain)|tv|(?:n.|sports.)?news|media|m).)naver.com\/.+$)/,
 			naverVibeRegExp: /^https?:\/\/vibe\.naver\.com\/(track|album|playlist)\/([\w]+)/,
@@ -87,7 +90,7 @@ jQuery(document).ready(function($) {
 			tvcfRegExp: /^https?:\/\/play\.tvcf\.co\.kr\/([0-9]+)?$/,
 			typeformRegExp: /^https?:\/\/([\w\.-]+)\.typeform\.com\/to\/(\w+)/,
 			udioRegExp: /^https?:\/\/(?:www\.)?udio\.com\/songs\/(\w+)?$/,
-			videoRegExp: /(?:<p>)?<video src="([^.]+.(?:mp4|webm))"[^>]+(?:poster="([^"]+)"[^>]+)?data-file-srl="(\d+)" \/>(?:<\/p>)?/g,
+			videoRegExp: /(?:<p>)?<video[^>]+data-file-srl="(\d+)"(?:[^>]+)?>/g,
 			vimeoRegExp: /^https?:\/\/(www|player\.)?vimeo.com\/(?:(?:channels|event|ondemand)\/(?:\w+\/)?|(?:album|groups)\/([^\/]*)\/videos\/|video\/|)(\d+)((?:\#t=.+|))(?:|\/\?)/,
 			xRegExp: /^https?:\/\/(?:www\.)?(?:twitter|x)\.com\/(?!explore|login|settings|tos|privacy|search|i\/flow|i\/events|i\/moments)(\w+){1,15}(?:\/(?:(status|lists))?)?(?:\/([0-9a-zA-Z-_]+)(?:\?.+)?)?$/,
 			youkuRegExp: /^https?:\/\/(?:(?:www|v|m).)?youku.com\/(v_show|video)\/id_([^?.]+)/,
@@ -132,16 +135,24 @@ jQuery(document).ready(function($) {
 				await setContent(e, paste);
 			});
 
+			ck_editor.on('drop', function(e) {
+				const file_list = e.data.dataTransfer.$.files;
+				if (file_list.length > 0) {
+					uploadFiles(e.editor, file_list);
+					e.stop();
+				}
+			});
+
 			let originalInsertHtml = ck_editor.insertHtml;
 			let html_inserted = '';
 
 			ck_editor.insertHtml = async function(html) {
 				html = html.replaceAll('%20', ' ');
 
-				const services_of_insert = ['msOfficeRegExp', 'pdfRegExp', 'videoRegExp'];
+				const services_of_insert = ['audioRegExp', 'msOfficeRegExp', 'pdfRegExp', 'videoRegExp'];
 				for (const reg_exp of services_of_insert) {
 					let matches;
-					if ( reg_exp === 'videoRegExp' ) {
+					if ( reg_exp === 'audioRegExp' || reg_exp === 'videoRegExp' ) {
 						matches = [...html.matchAll(preview.reg_exps[reg_exp])];
 					} else {
 						matches = html.match(preview.reg_exps[reg_exp]);
@@ -287,14 +298,14 @@ jQuery(document).ready(function($) {
 
 			let is_embedded = false;
 			(async function() {
-				const services_of_insert = ['ms_office', 'pdf', 'video'];
+				const services_of_insert = ['audio', 'ms_office', 'pdf', 'video'];
 				for (const service of services_of_insert) {
 					const reg_exp = service.replace(/_([a-z])/g, function(match, p1) {
 						return p1.toUpperCase();
 					}) + 'RegExp';
 
 					let matches;
-					if ( service === 'video' ) {
+					if ( service === 'audio' || service === 'video' ) {
 						matches = [...paste.matchAll(preview.reg_exps[reg_exp])];
 					} else {
 						matches = paste.match(preview.reg_exps[reg_exp]);
@@ -329,6 +340,105 @@ jQuery(document).ready(function($) {
 		}
 	}
 
+	// 파일 드래그앤드롭 이벤트를 가로챔 : 업로드 프로그레스바 구현 및 오디오/비디오 재생목록 생성
+	async function uploadFiles(editor, file_list) {
+		const editor_container = preview.editor_container;
+		let html_for_audio = '';
+		let html_for_video = '';
+
+		const progressbar = $('.xefu-progressbar');
+		const progressbarGraph = $('.xefu-progressbar div');
+		const progressStatus =  $('.xefu-progress-status');
+		const progressPercent =  $('.xefu-progress-percent');
+
+		const form = new FormData();
+		form.append('mid', window.editor_mid ?? window.current_mid);
+		form.append('act', 'procFileUpload');
+		form.append('editor_sequence', preview.editor.data('editor-sequence'));
+
+		for (let file of file_list) {
+			form.append('Filedata', file);
+
+			progressbar.stop(true, true).css('display', 'block');
+			progressbarGraph.stop(true, true).css('width', '0%');
+			progressPercent.stop(true, true).text('0%');
+			progressStatus.stop(true, true).css('display', 'block');
+
+			try {
+				await new Promise((resolve, reject) => {
+					$.ajax({
+						url: window.request_uri,
+						type: 'POST',
+						async: true,
+						contentType: false,
+						processData: false,
+						cache: false,
+						data: form,
+						dataType: 'json',
+						xhr: function() {
+							let xhr = $.ajaxSettings.xhr();
+							xhr.upload.onprogress = function(e) {
+								const lastUploadTime = Date.now();
+								const progress = Math.round(e.loaded / e.total * 999) / 10;
+
+								if ( progress < 99.9 ) {
+									progressbarGraph.css('width', progress + '%');
+									progressPercent.text(progress + '%');
+								} else {
+									progressbarGraph.css('width', '100%');
+									progressPercent.text('100%');
+								}
+							};
+							return xhr;
+						},
+						success: function(data) {
+							if (data.error == 0) {
+								const type = file.type;
+
+								if ( !type.startsWith('audio/') && !type.startsWith('video/') ) {
+									const html = editor_container.data('instance').generateHtml(editor_container, data);
+									editor.insertHtml(html, 'unfiltered_html');
+								} else {
+									if ( type.startsWith('audio/') ) {
+										html_for_audio += editor_container.data('instance').generateHtml(editor_container, data);
+									} else if ( type.startsWith('video/') ) {
+										html_for_video += editor_container.data('instance').generateHtml(editor_container, data);
+									}
+								}
+
+								editor_container.data('editorStatus', data);
+								editor_container.data('instance').loadFilelist(editor_container, true);
+								resolve();
+							} else {
+								alert(window.xe.msg_file_upload_error + ' (Type ' + 8 + ")\n" + data.message);
+								reject(data.message);
+							}
+						},
+						error: function(jqXHR) {
+							alert(window.xe.msg_file_upload_error + ' (Type ' + 9 + ")\n" + jqXHR.responseText);
+							reject(jqXHR.responseText);
+						}
+					});
+				});
+
+				progressbar.stop(true, true).slideUp();
+				progressStatus.stop(true, true).slideUp();
+			} catch(error) {
+				console.error('An error occurred during file upload:', error);
+
+				progressbar.stop(true, true).slideUp();
+				progressStatus.stop(true, true).slideUp();
+			}
+		};
+
+		if (html_for_audio) {
+			editor.insertHtml(html_for_audio, 'unfiltered_html');
+		}
+		if (html_for_video) {
+			editor.insertHtml(html_for_video, 'unfiltered_html');
+		}
+	}
+
 	// 파일 첨부와 함께 본문 삽입이 동시에 이뤄질 때, 비디오 파일들은 모아서 맨 나중에 삽입함
 	const settings = preview.editor_container.data().settings;
 	const originalAdd = settings.add;
@@ -344,8 +454,8 @@ jQuery(document).ready(function($) {
 			file_count = item.originalFiles.length;
 		},
         done: function(e, res) {
-			const result = res.response().result;
-			if (!result.mime_type.startsWith('video/')) {
+			const result = res.response()?.result;
+			if (!result || !result.mime_type || (!result.mime_type.startsWith('audio/') && !result.mime_type.startsWith('video/'))) {
 				if (typeof originalDone === 'function') {
 					originalDone.call(this, e, res);
 				}
@@ -377,7 +487,8 @@ jQuery(document).ready(function($) {
 					let temp_code = '';
 					const filename = String(result.source_filename);
 
-					if (filename.match(/\.(mp4|webm)$/i) && preview.editor_container.data().autoinsertTypes.video) {
+					if (filename.match(/\.(aac|flac|mp3|ogg|wav)$/i) && preview.editor_container.data().autoinsertTypes.audio
+						|| filename.match(/\.(mp4|webm)$/i) && preview.editor_container.data().autoinsertTypes.video) {
 						temp_code = preview.editor_container.data('instance').generateHtml(preview.editor_container, result);
 					}
 
@@ -446,7 +557,7 @@ jQuery(document).ready(function($) {
 			const result = data.files[file_srl];
 
 			if (result) {
-				if (result.mime_type.startsWith('video/')) {
+				if (result.mime_type.startsWith('audio/') || result.mime_type.startsWith('video/')) {
 					html_for_single = self.generateHtml(preview.editor_container, result);
 					if (textarea.length && editor.mode == 'source') {
 						html_for_single += "\n";
@@ -507,9 +618,10 @@ jQuery(document).ready(function($) {
 			const file_info = data.files[file_srl];
 			const file_ext = file_info.source_filename.replace(/.+\.(\w+)/, '$1');
 			if ( !file_info.mime_type.startsWith('application/vnd.openxmlformats-officedocument.')
+				&& !file_info.mime_type.startsWith('audio/')
 				&& !file_info.mime_type.startsWith('video/')
 				&& !['application/msword', 'application/vnd.ms-powerpoint', 'application/vnd.ms-excel', 'application/pdf'].includes(file_info.mime_type)
-				&& !/(?:docx?|pptx?|xlsx?|pdf|mp4|webm)/i.test(file_ext) )
+				&& !/(?:aac|flac|mp3|ogg|wav|docx?|pptx?|xlsx?|pdf|mp4|webm)/i.test(file_ext) )
 			{
 				return true;
 			}
@@ -521,11 +633,8 @@ jQuery(document).ready(function($) {
 		}
 
 		const ckeditor = _getCkeInstance(data.editorSequence);
-		const regexp1 = new RegExp('<p(?:[^>]+)?><a[^>]+data-file-srl="(' + file_srls.join('|') + ')"[^>]+>[^<]+<\/a><\/p>', 'g');
-		const regexp2 = new RegExp('<a[^>]*data-file-srl="(' + file_srls.join('|') + ')"[^>]+>[^<]+<\/a>', 'g');
-
 		const $html = $('<div>' + ckeditor.getData() + '</div>');
-		const target_class = '.ms-office-embed, .pdf-embed, .video-embed';
+		const target_class = '.audio-embed, .ms-office-embed, .pdf-embed, .video-embed';
 		const $media_embed = $html.find(target_class).parent();
 
 		let updated_html = $html.prop('innerHTML');
@@ -535,25 +644,31 @@ jQuery(document).ready(function($) {
 
 			if ( JSON.stringify(maintained_srls) === JSON.stringify(target_srls) ) {
 				continue;
-			} else if ( !maintained_srls.length ) {
-				$html.find(target_class).parent().eq(i).remove();
+			} else if ( maintained_srls.length < 1 ) {
+				for ( let j = 0; j < target_srls.length; j++ ) {
+					$media_embed.filter('[data-file-srl='+ target_srls.join(',') +']').remove();
+				};
 				updated_html = $html.prop('innerHTML');
 			} else {
+				const $target_element = $media_embed.eq(i);
+				const target_properties = ['file_srl', 'source_filename', 'thumbnail_filename', 'mime_type', 'width', 'height', 'duration', 'title', 'album', 'artist'];
 				const maintained_indices = maintained_srls.map((item) => {
 					return target_srls.indexOf(item);
 				});
-				const target_properties = ['file_srl', 'source_filename', 'thumbnail_filename', 'mime_type', 'width', 'height', 'duration'];
-				const $target_element = $html.find(target_class).parent().eq(i);
 
-				$html.find(target_class).parent().eq(i).attr('data-file-srl', maintained_srls.join(','));
 				for ( let j = 0; j < target_properties.length; j++ ) {
-					const value = target_properties[j];
-					const old_data = $target_element.find('iframe')[0].dataset[value].split('|@|');
+					const opt = target_properties[j];
+					const old_data = $target_element.find('iframe').data(opt);
+					if ( typeof old_data === 'undefined' ) {
+						continue;
+					}
+					const old_data_arr = old_data.split('|@|');
 					const new_data = maintained_indices.map((index) => {
-						return old_data[index];
+						return old_data_arr[index];
 					}).join('|@|');
-					$html.find(target_class).parent().eq(i).find('iframe').attr('data-' + value, new_data);
+					$target_element.find('iframe').attr('data-' + opt, new_data);
 				};
+				$target_element.attr('data-file-srl', maintained_srls.join(','));
 
 				if ( embed_leave_link ) {
 					const old_hero_info = data.files[target_srls[0]];
@@ -568,13 +683,13 @@ jQuery(document).ready(function($) {
 
 					if ( embed_link_location <= 1 ) {
 						if ( $target_element.prev().length && $target_element.prev().prop('outerHTML') === old_title_link ) {
-							$html.find(target_class).parent().eq(i).prev().remove();
-							$html.find(target_class).parent().eq(i).before(new_title_link);
+							$target_element.prev().remove();
+							$target_element.before(new_title_link);
 						}
 					} else if ( embed_link_location >= 2 ) {
 						if ( $target_element.next().length && $target_element.next().prop('outerHTML') === old_title_link ) {
-							$html.find(target_class).parent().eq(i).next().remove();
-							$html.find(target_class).parent().eq(i).after(new_title_link);
+							$target_element.next().remove();
+							$target_element.after(new_title_link);
 						}
 					}
 				}

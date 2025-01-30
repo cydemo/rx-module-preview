@@ -17,6 +17,13 @@
 	width: 100%; max-width: 100%; height: auto;
 }
 
+.media_embed.\34 shared-embed-music {
+	height: 153px; padding-bottom: unset;
+}
+.media_embed.\34 shared-embed-music img {
+	height: 100%; object-fit: contain;
+}
+
 .media_embed.airbnb-embed {
 	width: 100% !important; padding-bottom: 12px; overflow-x: auto;
 }
@@ -36,6 +43,10 @@
 
 .media_embed.apple-music-embed img {
 	display: none; opacity: 0;
+}
+
+.media_embed.audio-embed {
+	padding-bottom: 100% !important;
 }
 
 .media_embed.audioclip-embed {
@@ -197,6 +208,13 @@
 }
 .media_embed.mixcloud-embed img {
     opacity: 0;
+}
+
+.media_embed.nadio-embed {
+	padding-bottom: 100% !important;
+}
+.media_embed.nadio-embed img {
+	width: 100% !important; height: auto !important;
 }
 
 .media_embed.nico-embed-live {

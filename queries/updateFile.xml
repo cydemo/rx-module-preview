@@ -7,6 +7,7 @@
 		<column name="width" var="width" />
 		<column name="height" var="height" />
 		<column name="duration" var="duration" />
+		<column name="comment" var="comment" />
 	</columns>
 	<conditions>
 		<condition operation="equal" column="file_srl" var="file_srl" filter="number" notnull="notnull" />
