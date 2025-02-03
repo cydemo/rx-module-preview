@@ -3,7 +3,7 @@ export async function setVideoHtml(obj) {
 		return p1.toUpperCase();
 	});
 
-	if ( !obj.matches[0][1] || !$.isNumeric(obj.matches[0][3]) ) {
+	if ( !$.isNumeric(obj.matches[0][1]) ) {
 		console.error('Error parsing '+ title +' url');
 		return;
 	}
@@ -21,7 +21,7 @@ export async function setVideoHtml(obj) {
 		const file_model = preview.editor_container.data();
 
 		for ( let i = 0; i < obj.matches.length; i ++) {
-			id = Number(obj.matches[i][3]);
+			id = Number(obj.matches[i][1]);
 			const file_info = file_model.files[id];
 			const file_data = { file_srl: id };
 
@@ -46,7 +46,6 @@ export async function setVideoHtml(obj) {
 							inserting_type: 'thumbnail'
 						}
 						const result = await procFileUpload(obj);
-						const video_srl = Number(result.source_filename.replace(/[^0-9]+/g, ''));
 						const thumbnail_filename = '.' + result.download_url;
 
 						file_data.thumbnail_filename = thumbnail_filename;
@@ -54,10 +53,10 @@ export async function setVideoHtml(obj) {
 
 						exec_json('preview.procPreviewFileThumbnail', file_data, function(response) {
 							const editor_container = preview.editor_container;
-							const video_el = editor_container.find('.xefu-file[data-file-srl="'+ video_srl +'"]');
+							const video_el = editor_container.find('.xefu-file[data-file-srl="'+ file_data.file_srl +'"]');
 							const video_name = video_el.find('.xefu-file-name').text();
 							const video_size = video_el.find('.xefu-file-info').text();
-							const video_el_with_thumb = `<li class="xefu-file xefu-file-image un-selected" data-file-srl="${video_srl}" style="cursor: pointer;">
+							const video_el_with_thumb = `<li class="xefu-file xefu-file-image un-selected" data-file-srl="${file_data.file_srl}" style="cursor: pointer;">
 								<strong class="xefu-file-name">${video_name}</strong>
 								<span class="xefu-file-info">
 									<span class="xefu-file-size">${video_size}</span>
@@ -65,8 +64,8 @@ export async function setVideoHtml(obj) {
 										<span class="xefu-file-video"><span class="xefu-file-video-play"></span></span>
 										<span class="xefu-thumbnail" style="background-image:url(${thumbnail_filename})" title="${video_name}"></span>
 									</span>
-									<span><input type="checkbox" data-file-srl="${video_srl}"></span>
-									<button class="xefu-act-set-cover" data-file-srl="${video_srl}" title="Set as cover image"><i class="xi-check-circle"></i></button>
+									<span><input type="checkbox" data-file-srl="${file_data.file_srl}"></span>
+									<button class="xefu-act-set-cover" data-file-srl="${file_data.file_srl}" title="Set as cover image"><i class="xi-check-circle"></i></button>
 								</span>
 							</li>`;
 
@@ -96,6 +95,14 @@ export async function setVideoHtml(obj) {
 			'?service=' + obj.service + '&type=' + basic_info.mime_type.replace('video/', '') + '&url=' + encodeURIComponent(target_url);
 			iframe_src += (obj.matches.length > 1) ? '&list_id=true' : '';
 
+		let ratio = (basic_info.height / basic_info.width * 100).toFixed(2);
+		let style = ' style="padding-bottom: '+ ratio +'%;"';
+		let short_form = '';
+		if ( ratio > 100 ) {
+			short_form = ' short_form';
+			style = ' style="border-radius: unset;"';
+		}
+
 		const keys = Object.keys(data_obj_for_text);
 		let data_list = []
 		for (const key of keys) {
@@ -107,7 +114,7 @@ export async function setVideoHtml(obj) {
 
 		obj.html = `
 			<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false" data-file-srl="${data_obj_for_text.file_srl.join(',')}">
-				<div class="${preview.iframe_wrapper} video-embed">
+				<div class="${preview.iframe_wrapper} video-embed${short_form}"${style}>
 					<iframe src="${iframe_src}" data-frame-id="video-${Date.now()}" data-src="${iframe_src}" ${data_text} allowfullscreen="true" frameborder="no" scrolling="no" loading="lazy"></iframe>
 				</div>
 			</div>

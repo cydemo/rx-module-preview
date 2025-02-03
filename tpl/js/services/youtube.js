@@ -119,41 +119,25 @@ export async function setYoutubeHtml(obj) {
 						if ( ratio < 75 ) {
 							frame_image = 'maxresdefault';
 						} else if ( ratio > 100 ) {
-							frame_image = 'oardefault';
+							frame_image = 'maxresdefault';
 							short_form = ' short_form';
 							style = '';
 						} else {
 							frame_image = 'hqdefault';
 						}
 						thumb = 'https://i.ytimg.com/vi/' + id + '/' + frame_image + '.jpg';
+						thumb = thumb ? '<img src="'+ thumb +'" />' : '';
 
-						$('<img />').attr('src', thumb).on('load', function() {
-							// 기본 이미지가 없어서 대체 이미지가 로드된 경우
-							if (this.naturalWidth === 120 && this.naturalHeight === 90) {
-								if ( ratio < 75 ) {
-									frame_image = 'mqfault';
-								} else if ( ratio > 100 ) {
-									frame_image = 'oar2';
-									short_form = ' short_form';
-									style = '';
-								} else {
-									frame_image = 'hqdefault';
-								}
-							}
-							thumb = 'https://i.ytimg.com/vi/' + id + '/' + frame_image + '.jpg';
-							thumb = thumb ? '<img src="'+ thumb +'" />' : '';
-
-							obj.html = `
-								<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
-									<div class="${preview.iframe_wrapper}${short_form}"${style}>
-										${thumb}
-										<iframe src="${iframe_src}" frameborder="0" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-									</div>
+						obj.html = `
+							<div class="${preview.iframe_wrapper}_wrapper" contenteditable="false">
+								<div class="${preview.iframe_wrapper}${short_form}"${style}>
+									${thumb}
+									<iframe src="${iframe_src}" frameborder="0" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 								</div>
-							`;
-							insertMediaEmbed(obj);
-							completeMediaEmbed();
-						});
+							</div>
+						`;
+						insertMediaEmbed(obj);
+						completeMediaEmbed();
 					});
 				} else {
 					ratio = (data.height / data.width * 100).toFixed(2);
